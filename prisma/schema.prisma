@@ -27,3 +27,14 @@ model Newsletter {
   category  String
   createdAt DateTime @default(now())
 }
+
+// One row per (email, category). One user can subscribe to many categories.
+model Subscription {
+  id        String   @id @default(cuid())
+  email     String
+  category  String   // Newsletter category id, e.g. "ai", "startups"
+  createdAt DateTime @default(now())
+
+  @@unique([email, category])
+  @@index([email])
+}
