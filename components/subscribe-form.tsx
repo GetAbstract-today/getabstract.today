@@ -12,23 +12,31 @@ type SubscribeFormProps = {
   /** Required when mode is "single". Ignored when mode is "landing". */
   category?: string;
   className?: string;
+  formClassName?: string;
   inputClassName?: string;
   buttonClassName?: string;
   placeholder?: string;
   buttonText?: string;
   /** Optional caption below the form, e.g. "Join thousands of readers..." */
   caption?: string;
+  /** Optional class for the success message wrapper */
+  successClassName?: string;
+  /** Optional class for the error message */
+  errorClassName?: string;
 };
 
 export function SubscribeForm({
   mode = "single",
   category = "ai",
   className = "",
+  formClassName = "",
   inputClassName = "",
   buttonClassName = "",
   placeholder = "Email Address",
   buttonText = "Sign Up",
   caption,
+  successClassName = "",
+  errorClassName = "",
 }: SubscribeFormProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -85,7 +93,7 @@ export function SubscribeForm({
   if (success) {
     return (
       <div className={className}>
-        <p className="text-sm font-medium text-emerald-400">
+        <p className={`text-sm font-medium text-emerald-600 ${successClassName}`}>
           Thanks! You're subscribed. Check your inbox to confirm.
         </p>
       </div>
@@ -103,7 +111,7 @@ export function SubscribeForm({
       <div className={className}>
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-3 sm:flex-row"
+        className={formClassName || "flex w-full max-w-sm flex-col gap-3 sm:flex-row"}
       >
         <Input
           type="email"
@@ -123,7 +131,7 @@ export function SubscribeForm({
         </Button>
       </form>
       {error && (
-        <p className="mt-2 w-full max-w-sm text-sm text-red-400" role="alert">
+        <p className={`mt-2 w-full max-w-sm text-sm text-red-400 ${errorClassName}`.trim()} role="alert">
           {error}
         </p>
       )}
