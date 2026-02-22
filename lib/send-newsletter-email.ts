@@ -54,8 +54,8 @@ export async function sendNewsletterToSubscribers(
   const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
   const categoryLabel = getCategoryById(category)?.title ?? category;
   const subject = title
-    ? `[${categoryLabel}] ${title}`
-    : `[${categoryLabel}] Your digest – ${date}`;
+    ? title
+    : `${categoryLabel} – Your digest for ${date}`;
   const html = wrapEmailBody(markdownToHtml(contentMarkdown));
 
   const resend = new Resend(apiKey);
