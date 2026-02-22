@@ -31,13 +31,18 @@ export default function ExampleGeneratePage() {
   const [newsletterType, setNewsletterType] = useState("ai");
   const [result, setResult] = useState("");
   const [title, setTitle] = useState("");
+  const [newsletterId, setNewsletterId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendStatus, setSendStatus] = useState<string | null>(null);
 
   async function handleGenerate() {
     setError(null);
     setResult("");
     setTitle("");
+    setNewsletterId(null);
+    setSendStatus(null);
     setLoading(true);
     try {
       const res = await fetch("/api/newsletters/generate", {
@@ -52,6 +57,7 @@ export default function ExampleGeneratePage() {
       }
       setResult(data.content ?? "");
       setTitle(data.title ?? "");
+      setNewsletterId(data.id ?? null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
@@ -173,6 +179,60 @@ export default function ExampleGeneratePage() {
               )}
             </div>
           </div>
+
+          {result && newsletterId && (
+            <div className="mt-6 bg-white border-2 border-black p-6 lg:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="font-tech text-xs uppercase tracking-widest text-gray-600 mb-1">
+                    Send to subscribers
+                  </div>
+                  <p className="font-tech text-xs text-gray-500">
+                    Send this newsletter to all subscribers of the selected category.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setSending(true);
+                    setSendStatus(null);
+                    try {
+                      const res = await fetch("/api/newsletters/send", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ newsletterId, date }),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) {
+                        setSendStatus(`Error: ${data.error ?? "Send failed"}`);
+                        return;
+                      }
+                      setSendStatus(
+                        `Sent: ${data.sent} · Failed: ${data.failed}${data.errors ? " · " + data.errors.join(", ") : ""}`
+                      );
+                    } catch (e) {
+                      setSendStatus(`Error: ${e instanceof Error ? e.message : "Request failed"}`);
+                    } finally {
+                      setSending(false);
+                    }
+                  }}
+                  disabled={sending}
+                  className="h-12 px-8 bg-[#FF3300] text-white font-bold uppercase border-2 border-black hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {sending ? "Sending…" : "Send email"}
+                </button>
+              </div>
+              {sendStatus && (
+                <p
+                  className={`mt-4 font-tech text-xs uppercase ${
+                    sendStatus.startsWith("Error") ? "text-[#FF3300]" : "text-green-700"
+                  }`}
+                >
+                  {sendStatus}
+                </p>
+              )}
+            </div>
+          )}
 
           <Link
             href="/"
