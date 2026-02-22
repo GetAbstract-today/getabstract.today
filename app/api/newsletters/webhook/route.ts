@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const { urls, newsletter } = await generateNewsletter({ date, newsletterType });
+    const { urls, newsletter, title } = await generateNewsletter({ date, newsletterType });
     const dateForDb = parseDateOnly(date);
 
     if (urls.length > 0) {
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     const created = await prisma.newsletter.create({
-      data: { content: newsletter, category: newsletterType },
+      data: { title: title || undefined, content: newsletter, category: newsletterType },
     });
 
     const sendResult = await sendNewsletterToSubscribers({
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
       category: newsletterType,
       contentMarkdown: newsletter,
       date,
+      title: title || undefined,
     });
 
     return NextResponse.json(

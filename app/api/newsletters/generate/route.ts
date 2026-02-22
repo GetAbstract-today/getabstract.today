@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const trimmedDate = date.trim();
     const trimmedType = newsletterType.trim();
-    const { urls, newsletter } = await generateNewsletter({
+    const { urls, newsletter, title } = await generateNewsletter({
       date: trimmedDate,
       newsletterType: trimmedType,
     });
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
 
     const created = await prisma.newsletter.create({
       data: {
+        title: title || undefined,
         content: newsletter,
         category: trimmedType,
       },

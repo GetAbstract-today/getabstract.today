@@ -24,6 +24,7 @@ export type SendNewsletterParams = {
   category: string;
   contentMarkdown: string;
   date: string;
+  title?: string;
 };
 
 /**
@@ -33,7 +34,7 @@ export type SendNewsletterParams = {
 export async function sendNewsletterToSubscribers(
   params: SendNewsletterParams,
 ): Promise<SendNewsletterResult> {
-  const { category, contentMarkdown, date } = params;
+  const { category, contentMarkdown, date, title } = params;
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -52,7 +53,9 @@ export async function sendNewsletterToSubscribers(
 
   const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
   const categoryLabel = getCategoryById(category)?.title ?? category;
-  const subject = `[${categoryLabel}] Your digest – ${date}`;
+  const subject = title
+    ? `[${categoryLabel}] ${title}`
+    : `[${categoryLabel}] Your digest – ${date}`;
   const html = wrapEmailBody(markdownToHtml(contentMarkdown));
 
   const resend = new Resend(apiKey);

@@ -30,12 +30,14 @@ export default function ExampleGeneratePage() {
   const [date, setDate] = useState(DATE_OPTIONS[0]?.value ?? "");
   const [newsletterType, setNewsletterType] = useState("ai");
   const [result, setResult] = useState("");
+  const [title, setTitle] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleGenerate() {
     setError(null);
     setResult("");
+    setTitle("");
     setLoading(true);
     try {
       const res = await fetch("/api/newsletters/generate", {
@@ -49,6 +51,7 @@ export default function ExampleGeneratePage() {
         return;
       }
       setResult(data.content ?? "");
+      setTitle(data.title ?? "");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
@@ -152,6 +155,12 @@ export default function ExampleGeneratePage() {
             <div className="font-tech text-xs uppercase tracking-widest text-gray-600 mb-4">
               Result
             </div>
+            {title && (
+              <div className="mb-4 p-3 border-2 border-black bg-[#FFF8E1]">
+                <span className="font-tech text-xs uppercase tracking-widest text-gray-600">Email subject: </span>
+                <span className="font-bold text-sm">{title}</span>
+              </div>
+            )}
             <div className="min-h-[320px] overflow-auto border-2 border-black bg-[#E6E6E6] p-4">
               {result ? (
                 <Streamdown className="prose prose-neutral max-w-none">

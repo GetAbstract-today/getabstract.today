@@ -23,6 +23,7 @@ model Url {
 
 model Newsletter {
   id        String   @id @default(cuid())
+  title     String?  // AI-generated email subject line
   content   String   // Full newsletter as Markdown
   category  String
   createdAt DateTime @default(now())

@@ -85,6 +85,7 @@ Join [Insert Number] readers.
 **OUTPUT:** You must respond with a JSON object containing:
 1. **urls** – An array of every distinct source URL used in the newsletter (each URL exactly once, full absolute URL).
 2. **newsletter** – The full newsletter body as a single Markdown string (the content you would publish).
+3. **title** – A short, compelling email subject line (max 80 characters) derived from the newsletter content. It should act as a hook that makes recipients want to open the email. Draw from the most exciting headline, a surprising stat, or a punchy summary of the day's top story. Do NOT use generic phrases like "Your daily digest" or "AI news roundup". Examples: "OpenAI launches GPT-5 — and it can reason", "Google DeepMind cracks protein folding for drug design", "EU passes sweeping AI Act: what it means for builders".
 Category for this run: **[NEWSLETTER TYPE]** (use for context; urls will be stored under this category).`;
 
 const GEMINI_MODEL_ID = "google/gemini-3-flash";
@@ -92,6 +93,7 @@ const GEMINI_MODEL_ID = "google/gemini-3-flash";
 export const newsletterStructuredSchema = z.object({
   urls: z.array(z.string().url()).describe("All distinct source URLs used in the newsletter"),
   newsletter: z.string().describe("Full newsletter Markdown content"),
+  title: z.string().describe("Short, compelling email subject line (max 80 chars) derived from the newsletter content"),
 });
 
 export type NewsletterStructuredResult = z.infer<typeof newsletterStructuredSchema>;
@@ -123,7 +125,7 @@ export async function generateNewsletter(
     model: GEMINI_MODEL_ID,
     schema: newsletterStructuredSchema,
     schemaName: "NewsletterWithUrls",
-    schemaDescription: "Newsletter markdown and the list of all source URLs",
+    schemaDescription: "Newsletter markdown, the list of all source URLs, and a compelling email subject title",
     system:
       "You are an expert AI News Curator. Respond only with valid JSON matching the required schema. No introductory or meta commentary.",
     prompt,
@@ -132,5 +134,6 @@ export async function generateNewsletter(
   return {
     urls: object.urls ?? [],
     newsletter: (object.newsletter ?? "").trim(),
+    title: (object.title ?? "").trim(),
   };
 }
