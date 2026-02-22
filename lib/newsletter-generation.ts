@@ -85,7 +85,7 @@ Join [Insert Number] readers.
 **OUTPUT:** You must respond with a JSON object containing:
 1. **urls** – An array of every distinct source URL used in the newsletter (each URL exactly once, full absolute URL).
 2. **newsletter** – The full newsletter body as a single Markdown string (the content you would publish).
-3. **title** – A short, compelling email subject line (max 80 characters) derived from the newsletter content. It should act as a hook that makes recipients want to open the email. Draw from the most exciting headline, a surprising stat, or a punchy summary of the day's top story. Do NOT use generic phrases like "Your daily digest" or "AI news roundup". Examples: "OpenAI launches GPT-5 — and it can reason", "Google DeepMind cracks protein folding for drug design", "EU passes sweeping AI Act: what it means for builders".
+3. **title** – A short, compelling email subject line (max 80 characters) derived from the newsletter content. It should act as a hook that makes recipients want to open the email. Draw from the most exciting headline, a surprising stat, or a punchy summary of the day's top story. Do NOT include the category name, brackets, tags, or prefixes like "[AI]" or "[AI Daily]" — just the plain subject text. Do NOT use generic phrases like "Your daily digest" or "AI news roundup". Examples: "OpenAI launches GPT-5 — and it can reason", "Google DeepMind cracks protein folding for drug design", "EU passes sweeping AI Act: what it means for builders".
 Category for this run: **[NEWSLETTER TYPE]** (use for context; urls will be stored under this category).`;
 
 const GEMINI_MODEL_ID = "google/gemini-3-flash";
