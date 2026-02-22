@@ -64,7 +64,7 @@ export function HeroSection() {
           <div className="w-12 h-2 bg-[#FF3300] mb-6" />
           <p className="font-medium text-lg leading-snug max-w-sm">
             We read 100+ sources daily so you don&apos;t have to. The top
-            stories in AI, startups, and tech - delivered in a quick
+            stories in AI, startups, and tech etc delivered in a quick
             2-minute read.
           </p>
         </div>
