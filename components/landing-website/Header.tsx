@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, ArrowRight } from "lucide-react";
 
 const MOBILE_LINKS: Array<{
@@ -21,12 +22,17 @@ export function Header() {
   return (
     <>
       <nav className="fixed top-0 left-0 w-full z-50 bg-[#E6E6E6] border-b-2 border-black">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-stretch h-auto lg:h-20">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-stretch h-auto lg:h-28">
           <div className="flex items-center justify-between p-4 lg:p-0 lg:w-[30%] lg:border-r-2 lg:border-black bg-[#E6E6E6] relative z-20">
             <Link href="/" className="block pl-4 lg:pl-6">
-              <span className="text-4xl lg:text-5xl font-extrabold tracking-tight-custom uppercase">
-                Abstract.
-              </span>
+              <Image
+                src="/logo.png"
+                alt="Abstract"
+                width={255}
+                height={112}
+                className="h-24 lg:h-28 w-[128px] lg:w-[255px]"
+                priority
+              />
             </Link>
             <button
               type="button"

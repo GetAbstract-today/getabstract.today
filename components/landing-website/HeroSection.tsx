@@ -18,16 +18,16 @@ export function HeroSection() {
           <div className="flex items-center gap-3 mb-6 border-beam-b pb-4">
             <div className="w-3 h-3 bg-[#FF3300] animate-pulse" />
             <h2 className="text-2xl font-extrabold uppercase tracking-tight-custom">
-              Establish Line
+              Read Less. Know More.
             </h2>
           </div>
           <p className="font-tech text-xs uppercase mb-8 text-gray-600 leading-relaxed">
-            Get one daily email with the best reads in AI, tech, and design. No
-            spam, unsubscribe anytime.
+            Get the free daily email with summaries of the most interesting
+            stories in startups 🚀, tech, AI and more!
           </p>
           <SubscribeForm
             mode="landing"
-            placeholder="AUTHORIZATION [EMAIL]"
+            placeholder="Email Address"
             buttonText="Subscribe"
             className="w-full"
             formClassName="flex flex-col sm:flex-row w-full border-2 border-black"
@@ -35,10 +35,9 @@ export function HeroSection() {
             buttonClassName="bg-black text-white font-bold uppercase px-8 py-4 hover:bg-[#FF3300] transition-colors duration-0 sm:border-l-2 border-black rounded-none min-h-12 shrink-0"
             successClassName="text-[#1A1A1A]"
           />
-          <div className="mt-4 font-tech text-[10px] text-gray-400 uppercase flex justify-between">
-            <span>STATUS: SECURE</span>
-            <span>ENC: 256-BIT</span>
-          </div>
+          <p className="mt-4 font-tech text-[10px] text-gray-400 uppercase text-center">
+            Join 12,000 readers for one daily email
+          </p>
         </div>
       </div>
 
@@ -53,17 +52,20 @@ export function HeroSection() {
               strokeWidth={1.5}
               className="animate-spin text-sm w-4 h-4"
             />{" "}
-            SYSTEM STATUS: OPERATIONAL
+            UPDATED DAILY
           </div>
           <h1 className="text-6xl lg:text-7xl font-extrabold uppercase tracking-tight-custom leading-[0.85] mb-6">
-            Stay
+            Never
             <br />
-            Curious.
+            Miss a
+            <br />
+            Trend.
           </h1>
           <div className="w-12 h-2 bg-[#FF3300] mb-6" />
           <p className="font-medium text-lg leading-snug max-w-sm">
-            Curated newsletters on AI, tech, design, and more. One daily email,
-            five minutes to read.
+            We read 100+ sources daily so you don&apos;t have to. The top
+            stories in AI, startups, and tech - delivered in a quick
+            2-minute read.
           </p>
         </div>
 

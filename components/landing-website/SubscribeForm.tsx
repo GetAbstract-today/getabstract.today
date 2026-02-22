@@ -6,17 +6,17 @@ export function SubscribeForm() {
       <div className="flex items-center gap-3 mb-6 border-beam-b pb-4">
         <div className="w-3 h-3 bg-[#FF3300] animate-pulse" />
         <h2 className="text-2xl font-extrabold uppercase tracking-tight-custom">
-          Establish Line
+          Keep up with tech in 2 minutes
         </h2>
       </div>
       <p className="font-tech text-xs uppercase mb-8 text-gray-600 leading-relaxed">
-        Get one daily email with the best reads in AI, tech, and design. No
-        spam, unsubscribe anytime.
+        Get the free daily email with summaries of the most interesting
+        stories in startups 🚀, tech, AI and more!
       </p>
       <div className="flex flex-col sm:flex-row border-beam">
         <input
           type="email"
-          placeholder="AUTHORIZATION [EMAIL]"
+          placeholder="Email Address"
           className="bg-[#E6E6E6] w-full p-4 font-tech text-sm text-black outline-none placeholder:text-gray-500 focus:bg-white transition-colors"
         />
         <button
@@ -27,10 +27,9 @@ export function SubscribeForm() {
           <ArrowRight strokeWidth={1.5} className="text-lg w-5 h-5" />
         </button>
       </div>
-      <div className="mt-4 font-tech text-[10px] text-gray-400 uppercase flex justify-between">
-        <span>STATUS: SECURE</span>
-        <span>ENC: 256-BIT</span>
-      </div>
+      <p className="mt-4 font-tech text-[10px] text-gray-400 uppercase text-center">
+        Join 12,000 readers for one daily email
+      </p>
     </div>
   );
 }
