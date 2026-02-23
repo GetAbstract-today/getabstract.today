@@ -8,18 +8,18 @@ export function Footer() {
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <div className="p-8 lg:p-16 border-b lg:border-b-0 lg:border-r border-[#333]">
           <h2 className="text-5xl lg:text-7xl font-extrabold uppercase tracking-tight-custom leading-none mb-8">
-            Curated
+            Stay in
             <br />
-            for you.
+            the loop.
           </h2>
 
           <div className="space-y-4">
             <label className="font-tech text-xs uppercase tracking-widest text-gray-400">
-              Newsletter & Partner Inquiries
+              Newsletter, Sponsors & Partner Inquiries
             </label>
             <SubscribeForm
               mode="landing"
-              placeholder="OFFICIAL EMAIL"
+              placeholder="Email Address"
               buttonText="Submit"
               className="w-full"
               formClassName="flex w-full flex-col sm:flex-row border border-[#555]"
@@ -37,28 +37,21 @@ export function Footer() {
                 Headquarters
               </h4>
               <p className="uppercase font-bold text-sm leading-relaxed">
-                Industrial Sector 4
-                <br />
-                Alexanderplatz 1
-                <br />
-                10178 Berlin, DE
+                London, UK.
               </p>
             </div>
             <div>
               <h4 className="font-tech text-xs text-gray-400 uppercase mb-4">
-                Direct Line
+                Contact
               </h4>
               <p className="uppercase font-bold text-sm leading-relaxed">
-                +49 30 555 0123
-                <br />
-                INFO@ABSTRACT.ED
+                INFO@GETABSTRACT.TODAY
               </p>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-end md:items-center pt-8 border-t border-[#333] font-tech text-[10px] uppercase text-gray-500">
-            <div>© 2024 ABSTRACT. ALL RIGHTS RESERVED.</div>
-            <div className="mt-2 md:mt-0">DESIGN: BUREAU OF WORKS</div>
+            <div>© 2026 ABSTRACT. ALL RIGHTS RESERVED.</div>
           </div>
         </div>
       </div>

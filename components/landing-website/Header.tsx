@@ -24,13 +24,13 @@ export function Header() {
       <nav className="fixed top-0 left-0 w-full z-50 bg-[#E6E6E6] border-b-2 border-black">
         <div className="flex flex-col lg:flex-row justify-between lg:items-stretch h-auto lg:h-20">
           <div className="flex items-center justify-between p-4 lg:p-0 lg:w-[30%] lg:border-r-2 lg:border-black bg-[#E6E6E6] relative z-20">
-            <Link href="/" className="block pl-4 lg:pl-6">
+            <Link href="/" className="block pl-4 lg:pl-6 py-2">
               <Image
                 src="/logo.png"
                 alt="Abstract"
-                width={160}
-                height={106}
-                className="h-24 lg:h-28 w-[80px] lg:w-[160px] p-2"
+                width={200}
+                height={80}
+                className="h-auto w-[80px] lg:w-[180px]"
                 priority
               />
             </Link>
@@ -71,39 +71,43 @@ export function Header() {
             </Link>
           </div>
         </div>
-      </nav>
 
-      {/* Mobile menu overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" aria-hidden>
-          <button
-            type="button"
-            onClick={closeMobile}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            aria-label="Close menu"
-          />
-          <div className="absolute top-[72px] left-0 right-0 bg-white border-b-2 border-x-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] mx-2">
-            <div className="flex flex-col font-tech text-xs tracking-widest uppercase">
-              {MOBILE_LINKS.map(({ href, label, highlight }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={closeMobile}
-                  className={`flex items-center justify-between px-6 py-4 border-b-2 border-black last:border-b-0 transition-colors ${
-                    highlight
-                      ? "bg-[#FF3300] text-white font-bold hover:bg-black"
-                      : "text-[#1A1A1A] hover:bg-[#E6E6E6]"
-                  }`}
-                >
-                  {label}
-                  {highlight && (
-                    <ArrowRight strokeWidth={1.5} className="w-5 h-5" />
-                  )}
-                </Link>
-              ))}
+        {/* Mobile menu dropdown — inside nav so top-full works */}
+        {mobileOpen && (
+          <div className="lg:hidden">
+            <div className="bg-white border-t-2 border-black">
+              <div className="flex flex-col font-tech text-xs tracking-widest uppercase">
+                {MOBILE_LINKS.map(({ href, label, highlight }) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    onClick={closeMobile}
+                    className={`flex items-center justify-between px-6 py-4 border-b-2 border-black last:border-b-0 transition-colors ${
+                      highlight
+                        ? "bg-[#FF3300] text-white font-bold hover:bg-black"
+                        : "text-[#1A1A1A] hover:bg-[#E6E6E6]"
+                    }`}
+                  >
+                    {label}
+                    {highlight && (
+                      <ArrowRight strokeWidth={1.5} className="w-5 h-5" />
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+      </nav>
+
+      {/* Backdrop overlay */}
+      {mobileOpen && (
+        <button
+          type="button"
+          onClick={closeMobile}
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          aria-label="Close menu"
+        />
       )}
     </>
   );

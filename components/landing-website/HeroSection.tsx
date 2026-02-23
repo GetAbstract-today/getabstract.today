@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { RefreshCw, ArrowDownRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowDownRight } from "lucide-react";
 import { SubscribeForm } from "@/components/subscribe-form";
 
 export function HeroSection() {
@@ -18,7 +19,7 @@ export function HeroSection() {
           <div className="flex items-center gap-3 mb-6 border-beam-b pb-4">
             <div className="w-3 h-3 bg-[#FF3300] animate-pulse" />
             <h2 className="text-2xl font-extrabold uppercase tracking-tight-custom">
-              Read Less. Know More.
+              Stay Smart. Skip the Noise.
             </h2>
           </div>
           <p className="font-tech text-xs uppercase mb-8 text-gray-600 leading-relaxed">
@@ -41,41 +42,29 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="lg:col-span-4 flex flex-col justify-between bg-[#E6E6E6] p-6 lg:p-10 relative">
+      <div className="lg:col-span-4 flex flex-col justify-between bg-[#0A0A0A] relative">
         <div
-          className="absolute top-0 left-0 w-full h-[2px] bg-black animate-[width_1s_ease-out]"
+          className="absolute top-0 left-0 w-full h-[2px] bg-[#FF3300] animate-[width_1s_ease-out]"
           style={{ animation: "width 1s ease-out" }}
         />
-        <div>
-          <div className="font-tech text-xs text-[#FF3300] mb-4 flex items-center gap-2">
-            <RefreshCw
-              strokeWidth={1.5}
-              className="animate-spin text-sm w-4 h-4"
-            />{" "}
-            UPDATED DAILY
-          </div>
-          <h1 className="text-6xl lg:text-7xl font-extrabold uppercase tracking-tight-custom leading-[0.85] mb-6">
-            Never
-            <br />
-            Miss a
-            <br />
-            Trend.
-          </h1>
-          <div className="w-12 h-2 bg-[#FF3300] mb-6" />
-          <p className="font-medium text-lg leading-snug max-w-sm">
-            We read 100+ sources daily so you don&apos;t have to. The top
-            stories in AI, startups, and tech etc delivered in a quick
-            2-minute read.
-          </p>
+        <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
+          <Image
+            src="/og-image.png"
+            alt="Abstract — Read Less. Know More. Free daily tech & AI newsletter"
+            width={1200}
+            height={630}
+            className="w-full h-auto"
+            priority
+          />
         </div>
 
-        <div className="mt-12 lg:mt-0">
+        <div className="p-6 lg:px-10 lg:pb-10">
           <div className="font-tech text-[10px] mb-2 text-gray-500 uppercase">
             Browse by topic
           </div>
           <Link
             href="/newsletters"
-            className="group block w-full border-beam bg-transparent hover:bg-black hover:text-white transition-all duration-0 p-4 text-center uppercase font-bold tracking-wider flex justify-between items-center"
+            className="group block w-full border border-gray-700 bg-transparent hover:bg-white hover:text-black text-white transition-all duration-0 p-4 text-center uppercase font-bold tracking-wider flex justify-between items-center"
           >
             <span>Browse Newsletters</span>
             <ArrowDownRight strokeWidth={1.5} className="text-xl w-5 h-5" />

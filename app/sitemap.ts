@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { PrismaClient } from "@/lib/generated/prisma/client";
+import { prisma } from "@/lib/db";
 
 const BASE_URL = "https://getabstract.today";
 
@@ -23,12 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic newsletter pages
   let newsletterPages: MetadataRoute.Sitemap = [];
   try {
-    const prisma = new PrismaClient();
     const newsletters = await prisma.newsletter.findMany({
       select: { id: true, createdAt: true },
       orderBy: { createdAt: "desc" },
     });
-    await prisma.$disconnect();
 
     newsletterPages = newsletters.map((nl) => ({
       url: `${BASE_URL}/newsletters/${nl.id}`,
