@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Streamdown } from "streamdown";
 import { NoiseOverlay } from "@/components/landing-website";
 import { newsletterCategories } from "@/lib/newsletter-categories";
+import { Undo2, Redo2, Check, Loader2, Pencil, Eye } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,11 +26,51 @@ function getDateOptions(): { value: string; label: string }[] {
 }
 
 const DATE_OPTIONS = getDateOptions();
+const AUTOSAVE_DELAY = 1500; // ms
 
-export default function ExampleGeneratePage() {
+// ── Undo / Redo history hook ──────────────────────────────────────────
+function useHistory(initial: string) {
+  const [stack, setStack] = useState<string[]>([initial]);
+  const [pointer, setPointer] = useState(0);
+
+  const current = stack[pointer] ?? "";
+
+  const push = useCallback(
+    (value: string) => {
+      setStack((prev) => {
+        const next = prev.slice(0, pointer + 1);
+        next.push(value);
+        // keep max 100 entries
+        if (next.length > 100) next.shift();
+        return next;
+        });
+      setPointer((p) => Math.min(p + 1, 99));
+    },
+    [pointer]
+  );
+
+  const undo = useCallback(() => {
+    setPointer((p) => Math.max(0, p - 1));
+  }, []);
+
+  const redo = useCallback(() => {
+    setPointer((p) => Math.min(stack.length - 1, p + 1));
+  }, [stack.length]);
+
+  const canUndo = pointer > 0;
+  const canRedo = pointer < stack.length - 1;
+
+  const reset = useCallback((value: string) => {
+    setStack([value]);
+    setPointer(0);
+  }, []);
+
+  return { current, push, undo, redo, canUndo, canRedo, reset };
+}
+
+export default function AdminGeneratePage() {
   const [date, setDate] = useState(DATE_OPTIONS[0]?.value ?? "");
   const [newsletterType, setNewsletterType] = useState("ai");
-  const [result, setResult] = useState("");
   const [title, setTitle] = useState("");
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -37,12 +78,78 @@ export default function ExampleGeneratePage() {
   const [sending, setSending] = useState(false);
   const [sendStatus, setSendStatus] = useState<string | null>(null);
 
+  // Editing
+  const [editMode, setEditMode] = useState(false);
+  const history = useHistory("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-save state
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle"
+  );
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef<string>("");
+
+  // Auto-save function
+  const saveToServer = useCallback(
+    async (content: string) => {
+      if (!newsletterId) return;
+      if (content === lastSavedRef.current) return;
+      setSaveStatus("saving");
+      try {
+        const res = await fetch(`/api/newsletters/${newsletterId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        });
+        if (res.ok) {
+          lastSavedRef.current = content;
+          setSaveStatus("saved");
+          setTimeout(() => setSaveStatus("idle"), 2000);
+        }
+      } catch {
+        // silently fail — user can retry
+        setSaveStatus("idle");
+      }
+    },
+    [newsletterId]
+  );
+
+  // Schedule auto-save on content change
+  const handleContentChange = useCallback(
+    (value: string) => {
+      history.push(value);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => saveToServer(value), AUTOSAVE_DELAY);
+    },
+    [history, saveToServer]
+  );
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (editMode && textareaRef.current) {
+      const ta = textareaRef.current;
+      ta.style.height = "auto";
+      ta.style.height = `${ta.scrollHeight}px`;
+    }
+  }, [editMode, history.current]);
+
   async function handleGenerate() {
     setError(null);
-    setResult("");
+    history.reset("");
     setTitle("");
     setNewsletterId(null);
     setSendStatus(null);
+    setSaveStatus("idle");
+    setEditMode(false);
+    lastSavedRef.current = "";
     setLoading(true);
     try {
       const res = await fetch("/api/newsletters/generate", {
@@ -55,7 +162,9 @@ export default function ExampleGeneratePage() {
         setError(data.error ?? "Generation failed");
         return;
       }
-      setResult(data.content ?? "");
+      const content = data.content ?? "";
+      history.reset(content);
+      lastSavedRef.current = content;
       setTitle(data.title ?? "");
       setNewsletterId(data.id ?? null);
     } catch (e) {
@@ -65,11 +174,14 @@ export default function ExampleGeneratePage() {
     }
   }
 
+  const result = history.current;
+
   return (
     <div className="landing-page selection:bg-[#FF3300] selection:text-white min-h-screen flex flex-col">
       <NoiseOverlay />
       <main className="flex-1 w-full border-b-2 border-black bg-[#E6E6E6] p-6 lg:p-12">
         <div className="mx-auto max-w-4xl">
+          {/* ── Generation controls ── */}
           <div className="mb-6 bg-white border-2 border-black p-6 lg:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center gap-3 mb-4 border-b-2 border-black pb-4">
               <div className="w-3 h-3 bg-[#FF3300] animate-pulse" />
@@ -157,26 +269,103 @@ export default function ExampleGeneratePage() {
             )}
           </div>
 
-          <div className="bg-white border-2 border-black p-6 lg:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <div className="font-tech text-xs uppercase tracking-widest text-gray-600 mb-4">
-              Result
-            </div>
-            {title && (
-              <div className="mb-4 p-3 border-2 border-black bg-[#FFF8E1]">
-                <span className="font-tech text-xs uppercase tracking-widest text-gray-600">Email subject: </span>
-                <span className="font-bold text-sm">{title}</span>
+          {/* ── Result with edit / undo-redo / auto-save ── */}
+          <div className="bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-6 py-3 border-b-2 border-black bg-[#F5F5F5]">
+              <div className="font-tech text-xs uppercase tracking-widest text-gray-600">
+                Result
               </div>
-            )}
-            <div className="min-h-[320px] overflow-auto border-2 border-black bg-[#E6E6E6] p-4">
-              {result ? (
-                <Streamdown className="prose prose-neutral max-w-none">
-                  {result}
-                </Streamdown>
-              ) : (
-                <p className="font-tech text-sm text-gray-500 uppercase">
-                  Generated newsletter will appear here.
-                </p>
+              {result && (
+                <div className="flex items-center gap-2">
+                  {/* Save status */}
+                  <span className="font-tech text-xs uppercase text-gray-400 mr-2">
+                    {saveStatus === "saving" && (
+                      <span className="inline-flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" /> Saving…
+                      </span>
+                    )}
+                    {saveStatus === "saved" && (
+                      <span className="inline-flex items-center gap-1 text-green-600">
+                        <Check className="w-3 h-3" /> Saved
+                      </span>
+                    )}
+                  </span>
+
+                  {/* Undo */}
+                  <button
+                    type="button"
+                    onClick={history.undo}
+                    disabled={!history.canUndo}
+                    className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black transition-colors"
+                    title="Undo"
+                  >
+                    <Undo2 className="w-4 h-4" />
+                  </button>
+
+                  {/* Redo */}
+                  <button
+                    type="button"
+                    onClick={history.redo}
+                    disabled={!history.canRedo}
+                    className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white hover:bg-black hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black transition-colors"
+                    title="Redo"
+                  >
+                    <Redo2 className="w-4 h-4" />
+                  </button>
+
+                  {/* Toggle edit / preview */}
+                  <button
+                    type="button"
+                    onClick={() => setEditMode((v) => !v)}
+                    className="h-8 px-3 flex items-center gap-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-colors font-tech text-xs uppercase"
+                    title={editMode ? "Preview" : "Edit"}
+                  >
+                    {editMode ? (
+                      <>
+                        <Eye className="w-3.5 h-3.5" /> Preview
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="w-3.5 h-3.5" /> Edit
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
+            </div>
+
+            {/* Content area */}
+            <div className="p-6 lg:p-8">
+              {title && (
+                <div className="mb-4 p-3 border-2 border-black bg-[#FFF8E1]">
+                  <span className="font-tech text-xs uppercase tracking-widest text-gray-600">
+                    Email subject:{" "}
+                  </span>
+                  <span className="font-bold text-sm">{title}</span>
+                </div>
+              )}
+              <div className="min-h-[320px] overflow-auto border-2 border-black bg-[#E6E6E6] p-4">
+                {result ? (
+                  editMode ? (
+                    <textarea
+                      ref={textareaRef}
+                      value={result}
+                      onChange={(e) => handleContentChange(e.target.value)}
+                      className="w-full min-h-[320px] bg-transparent font-mono text-sm leading-relaxed resize-none outline-none"
+                      spellCheck={false}
+                    />
+                  ) : (
+                    <Streamdown className="prose prose-neutral max-w-none">
+                      {result}
+                    </Streamdown>
+                  )
+                ) : (
+                  <p className="font-tech text-sm text-gray-500 uppercase">
+                    Generated newsletter will appear here.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -194,6 +383,13 @@ export default function ExampleGeneratePage() {
                 <button
                   type="button"
                   onClick={async () => {
+                    // Flush any pending auto-save before sending
+                    if (saveTimerRef.current) {
+                      clearTimeout(saveTimerRef.current);
+                      saveTimerRef.current = null;
+                    }
+                    await saveToServer(result);
+
                     setSending(true);
                     setSendStatus(null);
                     try {
@@ -235,10 +431,10 @@ export default function ExampleGeneratePage() {
           )}
 
           <Link
-            href="/"
+            href="/admin"
             className="mt-6 inline-block font-tech text-xs uppercase text-gray-500 hover:text-black transition-colors"
           >
-            ← Back to home
+            ← Back to admin
           </Link>
         </div>
       </main>
