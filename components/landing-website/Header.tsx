@@ -23,14 +23,14 @@ export function Header() {
     <>
       <nav className="fixed top-0 left-0 w-full z-50 bg-[#E6E6E6] border-b-2 border-black">
         <div className="flex flex-col lg:flex-row justify-between lg:items-stretch h-auto lg:h-20">
-          <div className="flex items-center justify-between p-4 lg:p-0 lg:w-[30%] lg:border-r-2 lg:border-black bg-[#E6E6E6] relative z-20">
-            <Link href="/" className="block pl-4 lg:pl-6 py-2">
+          <div className="flex items-center justify-between p-4 lg:px-8 lg:py-4 lg:w-[30%] lg:border-r-2 lg:border-black bg-[#E6E6E6] relative z-20">
+            <Link href="/" className="block">
               <Image
                 src="/logo.png"
                 alt="Abstract"
                 width={200}
                 height={80}
-                className="h-auto w-[80px] lg:w-[180px]"
+                className="w-[100px] lg:w-[240px] h-auto max-h-[6rem] object-contain"
                 priority
               />
             </Link>
