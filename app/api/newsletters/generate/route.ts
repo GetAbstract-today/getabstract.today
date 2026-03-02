@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { generateNewsletter } from "@/lib/newsletter-generation";
+import { generateNewsletter, generateNewsletterFromProfile } from "@/lib/newsletter-generation";
 
 /** Parse YYYY-MM-DD to Date at noon UTC to avoid timezone shifts. */
 function parseDateOnly(dateStr: string): Date {
@@ -28,10 +28,36 @@ export async function POST(request: Request) {
 
     const trimmedDate = date.trim();
     const trimmedType = newsletterType.trim();
-    const { urls, newsletter, title } = await generateNewsletter({
-      date: trimmedDate,
-      newsletterType: trimmedType,
-    });
+
+    let urls: string[];
+    let newsletter: string;
+    let title: string;
+
+    if (trimmedType === "ai") {
+      // Hardcoded AI prompt
+      const result = await generateNewsletter({
+        date: trimmedDate,
+        newsletterType: trimmedType,
+      });
+      urls = result.urls;
+      newsletter = result.newsletter;
+      title = result.title;
+    } else {
+      // DB-driven topic profile
+      const profile = await prisma.topicProfile.findUnique({
+        where: { slug: trimmedType },
+      });
+      if (!profile) {
+        return NextResponse.json(
+          { error: `No topic profile found for '${trimmedType}'` },
+          { status: 404 }
+        );
+      }
+      const result = await generateNewsletterFromProfile(profile, trimmedDate);
+      urls = result.urls;
+      newsletter = result.newsletter;
+      title = result.title;
+    }
 
     const dateForDb = parseDateOnly(trimmedDate);
 

@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get("category");
+
     const newsletters = await prisma.newsletter.findMany({
+      where: category ? { category } : undefined,
       orderBy: { createdAt: "desc" },
+      select: { id: true, title: true, category: true, createdAt: true },
     });
     return NextResponse.json(newsletters);
   } catch (error) {

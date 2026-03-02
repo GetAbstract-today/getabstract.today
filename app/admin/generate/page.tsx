@@ -4,7 +4,6 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Streamdown } from "streamdown";
 import { NoiseOverlay } from "@/components/landing-website";
-import { newsletterCategories } from "@/lib/newsletter-categories";
 import { Undo2, Redo2, Check, Loader2, Pencil, Eye } from "lucide-react";
 import {
   Select,
@@ -14,18 +13,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-function getDateOptions(): { value: string; label: string }[] {
-  const options: { value: string; label: string }[] = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const value = d.toISOString().slice(0, 10);
-    options.push({ value, label: value });
-  }
-  return options;
+interface TopicOption {
+  slug: string;
+  name: string;
+  icon: string;
 }
 
-const DATE_OPTIONS = getDateOptions();
+// AI is always first — it's hardcoded
+const AI_TOPIC: TopicOption = { slug: "ai", name: "AI", icon: "🧠" };
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+interface NewsletterHistoryItem {
+  id: string;
+  title: string | null;
+  createdAt: string;
+  date: string; // YYYY-MM-DD derived from createdAt
+}
+
 const AUTOSAVE_DELAY = 1500; // ms
 
 // ── Undo / Redo history hook ──────────────────────────────────────────
@@ -69,26 +76,38 @@ function useHistory(initial: string) {
 }
 
 export default function AdminGeneratePage() {
-  const [date, setDate] = useState(DATE_OPTIONS[0]?.value ?? "");
+  const today = todayStr();
+
+  // ── All state ──
+  const [date, setDate] = useState(today);
   const [newsletterType, setNewsletterType] = useState("ai");
+  const [topics, setTopics] = useState<TopicOption[]>([AI_TOPIC]);
   const [title, setTitle] = useState("");
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [history_items, setHistoryItems] = useState<NewsletterHistoryItem[]>([]);
   const [sending, setSending] = useState(false);
   const [sendStatus, setSendStatus] = useState<string | null>(null);
-
-  // Editing
   const [editMode, setEditMode] = useState(false);
   const history = useHistory("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Auto-save state
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
-    "idle"
-  );
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>("");
+
+  const isToday = date === today;
+
+  // ── Helpers ──
+  function clearResult() {
+    history.reset("");
+    setTitle("");
+    setNewsletterId(null);
+    setSaveStatus("idle");
+    setEditMode(false);
+    lastSavedRef.current = "";
+  }
 
   // Auto-save function
   const saveToServer = useCallback(
@@ -108,7 +127,6 @@ export default function AdminGeneratePage() {
           setTimeout(() => setSaveStatus("idle"), 2000);
         }
       } catch {
-        // silently fail — user can retry
         setSaveStatus("idle");
       }
     },
@@ -120,10 +138,60 @@ export default function AdminGeneratePage() {
     (value: string) => {
       history.push(value);
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => saveToServer(value), AUTOSAVE_DELAY);
+      saveTimerRef.current = setTimeout(
+        () => saveToServer(value),
+        AUTOSAVE_DELAY
+      );
     },
     [history, saveToServer]
   );
+
+  // ── Effects ──
+
+  // Fetch DB topic profiles on mount
+  useEffect(() => {
+    fetch("/api/topics")
+      .then((r) => r.json())
+      .then((data: Array<{ slug: string; name: string; icon: string }>) => {
+        const dbTopics = data.map((t) => ({
+          slug: t.slug,
+          name: t.name,
+          icon: t.icon,
+        }));
+        setTopics([AI_TOPIC, ...dbTopics]);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Fetch newsletter history when category changes
+  useEffect(() => {
+    setHistoryLoading(true);
+    fetch(`/api/newsletters?category=${encodeURIComponent(newsletterType)}`)
+      .then((r) => r.json())
+      .then(
+        (
+          data: Array<{
+            id: string;
+            title: string | null;
+            createdAt: string;
+          }>
+        ) => {
+          setHistoryItems(
+            data.map((n) => ({
+              id: n.id,
+              title: n.title,
+              createdAt: n.createdAt,
+              date: n.createdAt.slice(0, 10),
+            }))
+          );
+        }
+      )
+      .catch(() => setHistoryItems([]))
+      .finally(() => setHistoryLoading(false));
+    setDate(today);
+    clearResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newsletterType]);
 
   // Clean up timer on unmount
   useEffect(() => {
@@ -141,15 +209,66 @@ export default function AdminGeneratePage() {
     }
   }, [editMode, history.current]);
 
+  // ── Derived state ──
+
+  // Build date options: today first, then unique history dates
+  const dateOptions = (() => {
+    const opts: { value: string; label: string; historyId?: string }[] = [];
+    const todayItem = history_items.find((h) => h.date === today);
+    opts.push({
+      value: today,
+      label: `Today — ${today}`,
+      historyId: todayItem?.id,
+    });
+    const seen = new Set<string>();
+    seen.add(today);
+    for (const item of history_items) {
+      if (seen.has(item.date)) continue;
+      seen.add(item.date);
+      opts.push({ value: item.date, label: item.date, historyId: item.id });
+    }
+    return opts;
+  })();
+
+  // ── Handlers ──
+
+  async function handleDateChange(newDate: string) {
+    setDate(newDate);
+    setError(null);
+    setSendStatus(null);
+
+    if (newDate === today) {
+      clearResult();
+      return;
+    }
+
+    const item = history_items.find((h) => h.date === newDate);
+    if (!item) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/newsletters/${item.id}`);
+      if (!res.ok) {
+        setError("Failed to load newsletter");
+        return;
+      }
+      const data = await res.json();
+      history.reset(data.content ?? "");
+      lastSavedRef.current = data.content ?? "";
+      setTitle(data.title ?? "");
+      setNewsletterId(data.id);
+      setEditMode(false);
+    } catch {
+      setError("Failed to load newsletter");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleGenerate() {
     setError(null);
-    history.reset("");
-    setTitle("");
-    setNewsletterId(null);
+    clearResult();
     setSendStatus(null);
-    setSaveStatus("idle");
-    setEditMode(false);
-    lastSavedRef.current = "";
     setLoading(true);
     try {
       const res = await fetch("/api/newsletters/generate", {
@@ -167,6 +286,29 @@ export default function AdminGeneratePage() {
       lastSavedRef.current = content;
       setTitle(data.title ?? "");
       setNewsletterId(data.id ?? null);
+
+      // Refresh history
+      fetch(`/api/newsletters?category=${encodeURIComponent(newsletterType)}`)
+        .then((r) => r.json())
+        .then(
+          (
+            items: Array<{
+              id: string;
+              title: string | null;
+              createdAt: string;
+            }>
+          ) => {
+            setHistoryItems(
+              items.map((n) => ({
+                id: n.id,
+                title: n.title,
+                createdAt: n.createdAt,
+                date: n.createdAt.slice(0, 10),
+              }))
+            );
+          }
+        )
+        .catch(() => {});
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
@@ -202,23 +344,34 @@ export default function AdminGeneratePage() {
                 >
                   Date
                 </label>
-                <Select value={date} onValueChange={setDate}>
+                <Select value={date} onValueChange={handleDateChange}>
                   <SelectTrigger
                     id="date"
-                    className="w-[180px] h-12 rounded-none border-2 border-black bg-[#E6E6E6] font-tech text-sm focus:bg-white focus:ring-0 focus:ring-offset-0"
+                    className="w-[340px] h-12 rounded-none border-2 border-black bg-[#E6E6E6] font-tech text-sm focus:bg-white focus:ring-0 focus:ring-offset-0"
                   >
-                    <SelectValue placeholder="Select date" />
+                    <SelectValue placeholder={historyLoading ? "Loading…" : "Select date"} />
                   </SelectTrigger>
-                  <SelectContent className="rounded-none border-2 border-black bg-white">
-                    {DATE_OPTIONS.map((opt) => (
+                  <SelectContent className="rounded-none border-2 border-black bg-white max-h-[300px]">
+                    {dateOptions.map((opt, i) => (
                       <SelectItem
-                        key={opt.value}
+                        key={opt.value + (opt.historyId ?? "")}
                         value={opt.value}
-                        className="font-tech text-sm focus:bg-[#FF3300]/10 focus:text-[#1A1A1A]"
+                        className={`font-tech text-sm focus:bg-[#FF3300]/10 focus:text-[#1A1A1A] ${
+                          i === 0
+                            ? "border-b border-gray-200 font-bold"
+                            : ""
+                        }`}
                       >
-                        {opt.label}
+                        <span className="truncate block max-w-[300px]">
+                          {opt.label}
+                        </span>
                       </SelectItem>
                     ))}
+                    {dateOptions.length === 1 && (
+                      <div className="px-3 py-2 font-tech text-xs text-gray-400 uppercase">
+                        No previous newsletters
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -237,13 +390,13 @@ export default function AdminGeneratePage() {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent className="rounded-none border-2 border-black bg-white">
-                    {newsletterCategories.map((t) => (
+                    {topics.map((t) => (
                       <SelectItem
-                        key={t.id}
-                        value={t.id}
+                        key={t.slug}
+                        value={t.slug}
                         className="font-tech text-sm focus:bg-[#FF3300]/10 focus:text-[#1A1A1A]"
                       >
-                        {t.title}
+                        {t.icon} {t.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -252,10 +405,10 @@ export default function AdminGeneratePage() {
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={loading}
+                disabled={loading || !isToday}
                 className="h-12 px-8 bg-black text-white font-bold uppercase border-2 border-black hover:bg-[#FF3300] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Generating…" : "Generate"}
+                {loading ? (isToday ? "Generating…" : "Loading…") : "Generate"}
               </button>
             </div>
 

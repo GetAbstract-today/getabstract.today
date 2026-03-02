@@ -39,3 +39,26 @@ model Subscription {
   @@unique([email, category])
   @@index([email])
 }
+
+// Defines a newsletter topic/category with its prompt configuration.
+// Each topic produces newsletters with a distinct persona, scope, sections, and sources.
+model TopicProfile {
+  id              String   @id @default(cuid())
+  slug            String   @unique              // URL-safe identifier, e.g. "ai", "fintech"
+  name            String                        // Display name, e.g. "AI & Machine Learning"
+  icon            String                        // Emoji, e.g. "🧠"
+  description     String                        // Shown on subscribe page
+  tagline         String                        // Short marketing line
+
+  // ── Prompt configuration ──
+  role            String                        // e.g. "expert AI News Curator and Technical Writer"
+  topicScope      String                        // e.g. "AI, machine learning, and data science"
+  titlePrefix     String                        // e.g. "AI Daily"
+  sections        String                        // JSON array of section configs
+  prioritySources String[]                      // e.g. ["ArXiv", "TechCrunch"]
+  toneNotes       String?                       // Optional tone/audience guidance
+  exampleSubjects String[]                      // Example email subject lines for the AI
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

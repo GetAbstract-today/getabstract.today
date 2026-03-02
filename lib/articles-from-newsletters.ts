@@ -23,7 +23,12 @@ function extractDescription(content: string): string {
     return t.length > 0 && !t.startsWith("#");
   });
   const first = lines[0] ?? "";
-  const plain = first.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").trim();
+  const plain = first
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // strip markdown links
+    .replace(/\*\*TL;DR:\*\*\s*/i, "")       // strip TL;DR prefix
+    .replace(/\*\*([^*]+)\*\*/g, "$1")        // strip bold markdown
+    .replace(/\*([^*]+)\*/g, "$1")            // strip italic markdown
+    .trim();
   if (plain.length <= 120) return plain;
   return plain.slice(0, 117) + "...";
 }
@@ -79,9 +84,9 @@ export async function getLatestArticlesByCategory(): Promise<
 
   for (const n of newsletters) {
     if (!isCategoryId(n.category)) continue;
-    const title = extractTitle(n.content);
+    const title = n.title ?? extractTitle(n.content);
     const description = extractDescription(n.content);
-    const dateRead = `${formatDateRead(n.createdAt)} // 5 Min Read`;
+    const dateRead = formatDateRead(n.createdAt);
     const imageSrc =
       DEFAULT_IMAGE_BY_CATEGORY[n.category] ?? FALLBACK_IMAGE;
     const card: ArticleCardData = {

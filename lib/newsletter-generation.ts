@@ -1,7 +1,15 @@
 import { generateObject } from "ai";
 import { z } from "zod";
+import {
+  composePrompt,
+  composeSystemMessage,
+  type SectionConfig,
+  type TopicPromptInput,
+} from "./prompt-composer";
 
-const NEWSLETTER_PROMPT_TEMPLATE = `**Role:** You are an expert AI News Curator and Technical Writer. Your goal is to produce a clean, professional, and hyperlinked Markdown newsletter based on the latest AI developments from the last 24 hours.
+// ── Hardcoded AI prompt (kept as-is) ──
+
+const AI_NEWSLETTER_PROMPT_TEMPLATE = `**Role:** You are an expert AI News Curator and Technical Writer. Your goal is to produce a clean, professional, and hyperlinked Markdown newsletter based on the latest AI developments from the last 24 hours.
 
 **Guiding Principles:**
 
@@ -15,8 +23,6 @@ const NEWSLETTER_PROMPT_TEMPLATE = `**Role:** You are an expert AI News Curator 
 ### **NEWSLETTER TEMPLATE STRUCTURE**
 
 # [AI Daily] YYYY-MM-DD
-
-**TL;DR:** {{One short line summarizing the most important theme of the day.}}
 
 ## 🏆 Hero Feature
 
@@ -103,23 +109,21 @@ export type GenerateNewsletterParams = {
   newsletterType: string;
 };
 
-/**
- * Resolves the prompt by substituting the date (and optionally adjusting for newsletter type).
- */
-function resolvePrompt(date: string, newsletterType: string): string {
-  return NEWSLETTER_PROMPT_TEMPLATE.replace(/\[INSERT DATE HERE\]/g, date)
+// ── For the hardcoded AI topic ──
+
+function resolveAIPrompt(date: string, newsletterType: string): string {
+  return AI_NEWSLETTER_PROMPT_TEMPLATE.replace(/\[INSERT DATE HERE\]/g, date)
     .replace(/\[NEWSLETTER TYPE\]/g, newsletterType);
 }
 
 /**
- * Generates newsletter and extracted URLs using AI Gateway (Gemini) with structured output.
- * Returns urls array and newsletter markdown.
+ * Generates newsletter using the hardcoded AI prompt template.
  */
 export async function generateNewsletter(
   params: GenerateNewsletterParams,
 ): Promise<NewsletterStructuredResult> {
   const { date, newsletterType } = params;
-  const prompt = resolvePrompt(date, newsletterType);
+  const prompt = resolveAIPrompt(date, newsletterType);
 
   const { object } = await generateObject({
     model: GEMINI_MODEL_ID,
@@ -133,7 +137,58 @@ export async function generateNewsletter(
 
   return {
     urls: object.urls ?? [],
-    newsletter: (object.newsletter ?? "").trim(),
+    newsletter: (object.newsletter ?? "").trim().replace(/\\n/g, "\n"),
+    title: (object.title ?? "").trim(),
+  };
+}
+
+// ── For DB-driven topic profiles ──
+
+export interface TopicProfileData {
+  role: string;
+  topicScope: string;
+  titlePrefix: string;
+  sections: string; // JSON string
+  prioritySources: string[];
+  toneNotes?: string | null;
+  exampleSubjects: string[];
+}
+
+/**
+ * Generates newsletter from a DB-stored TopicProfile.
+ * Parses the sections JSON, composes the prompt, and calls the AI model.
+ */
+export async function generateNewsletterFromProfile(
+  profile: TopicProfileData,
+  date: string,
+): Promise<NewsletterStructuredResult> {
+  const sections: SectionConfig[] = JSON.parse(profile.sections);
+
+  const topicInput: TopicPromptInput = {
+    role: profile.role,
+    topicScope: profile.topicScope,
+    titlePrefix: profile.titlePrefix,
+    sections,
+    prioritySources: profile.prioritySources,
+    toneNotes: profile.toneNotes,
+    exampleSubjects: profile.exampleSubjects,
+  };
+
+  const prompt = composePrompt(topicInput, date);
+  const system = composeSystemMessage(profile.role);
+
+  const { object } = await generateObject({
+    model: GEMINI_MODEL_ID,
+    schema: newsletterStructuredSchema,
+    schemaName: "NewsletterWithUrls",
+    schemaDescription: "Newsletter markdown, the list of all source URLs, and a compelling email subject title",
+    system,
+    prompt,
+  });
+
+  return {
+    urls: object.urls ?? [],
+    newsletter: (object.newsletter ?? "").trim().replace(/\\n/g, "\n"),
     title: (object.title ?? "").trim(),
   };
 }

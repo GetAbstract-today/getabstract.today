@@ -1,6 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const newsletter = await prisma.newsletter.findUnique({ where: { id } });
+    if (!newsletter) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    return NextResponse.json(newsletter);
+  } catch (error) {
+    console.error("GET /api/newsletters/[id] error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch newsletter" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

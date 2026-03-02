@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { NoiseOverlay } from "@/components/landing-website";
-import { Newspaper, Construction, ArrowRight } from "lucide-react";
+import { Newspaper, Construction, ArrowRight, Palette } from "lucide-react";
 
 export const metadata = {
   title: "Admin | Abstract.",
@@ -13,6 +13,13 @@ const ADMIN_TOOLS = [
     icon: Newspaper,
     title: "Generate Newsletter",
     description: "Pick a date and category, generate a newsletter with AI, and send it to subscribers.",
+    ready: true,
+  },
+  {
+    href: "/admin/studio",
+    icon: Palette,
+    title: "Newsletter Studio",
+    description: "Create, edit, and manage topic profiles for rapid newsletter category expansion.",
     ready: true,
   },
 ] as const;
