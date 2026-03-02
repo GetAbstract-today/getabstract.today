@@ -5,6 +5,8 @@ import {
   containsInjection,
 } from "@/lib/prompt-composer";
 
+export const dynamic = "force-dynamic";
+
 // ── GET /api/topics — list all topic profiles ──
 export async function GET() {
   try {
