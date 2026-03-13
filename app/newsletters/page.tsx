@@ -2,82 +2,8 @@ import {
   NoiseOverlay,
   NewsletterBentoCard,
 } from "@/components/landing-website";
-import { getCategoryById } from "@/lib/newsletter-categories";
+import { newsletterCategories } from "@/lib/newsletter-categories";
 import { Radio } from "lucide-react";
-
-const newsletters = [
-  {
-    id: "ai" as const,
-    status: "active" as const,
-    className: "col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-2",
-    size: "feature" as const,
-  },
-  {
-    id: "startups" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2",
-    size: "default" as const,
-  },
-  {
-    id: "dev" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "infosec" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "product" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "devops" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "founders" as const,
-    className: "col-span-1 md:col-span-2 lg:col-span-2",
-    size: "wide" as const,
-  },
-  {
-    id: "design" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "marketing" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "crypto" as const,
-    className: "col-span-1 md:col-span-2 lg:col-span-2",
-    size: "wide" as const,
-  },
-  {
-    id: "fintech" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "it" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "data" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-  {
-    id: "hardware" as const,
-    className: "col-span-1 md:col-span-1 lg:col-span-1",
-    size: "default" as const,
-  },
-];
 
 export default function NewslettersPage() {
   return (
@@ -109,7 +35,7 @@ export default function NewslettersPage() {
             architecture.
           </p>
           <div className="flex justify-between items-center text-xs font-tech font-bold uppercase tracking-widest border-t-2 border-black pt-4">
-            <span>Index: 14 Nodes</span>
+            <span>Index: {newsletterCategories.length} Nodes</span>
             <span className="text-[#FF3300] flex items-center gap-2">
               <div className="w-2 h-2 bg-[#FF3300] rounded-full animate-pulse" />{" "}
               Secure
@@ -120,21 +46,18 @@ export default function NewslettersPage() {
 
       <section className="w-full bg-transparent">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full">
-          {newsletters.map((item) => {
-            const category = getCategoryById(item.id)!;
-            return (
-              <NewsletterBentoCard
-                key={item.id}
-                icon={category.Icon}
-                title={category.title}
-                description={category.description}
-                status={item.status ?? "coming-soon"}
-                className={item.className}
-                size={item.size}
-                href={`/newsletters/${item.id}`}
-              />
-            );
-          })}
+          {newsletterCategories.map((category, i) => (
+            <NewsletterBentoCard
+              key={category.id}
+              icon={category.Icon}
+              title={category.title}
+              description={category.description}
+              status={category.comingSoon ? "coming-soon" : "active"}
+              className={i === 0 ? "col-span-1 md:col-span-2 lg:col-span-2 lg:row-span-2" : "col-span-1"}
+              size={i === 0 ? "feature" : "default"}
+              href={`/newsletters/${category.id}`}
+            />
+          ))}
         </div>
       </section>
     </div>

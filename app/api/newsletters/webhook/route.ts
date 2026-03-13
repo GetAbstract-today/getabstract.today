@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { generateNewsletter } from "@/lib/newsletter-generation";
+import { generateNewsletter, generateNewsletterFromProfile } from "@/lib/newsletter-generation";
 import { sendNewsletterToSubscribers } from "@/lib/send-newsletter-email";
 
 function getDefaultDate(): string {
@@ -31,7 +31,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const { urls, newsletter, title } = await generateNewsletter({ date, newsletterType });
+    // Use DB-driven TopicProfile if available, fall back to hardcoded prompt
+    const profile = await prisma.topicProfile.findUnique({ where: { slug: newsletterType } });
+    const { urls, newsletter, title } = profile
+      ? await generateNewsletterFromProfile(profile, date)
+      : await generateNewsletter({ date, newsletterType });
     const dateForDb = parseDateOnly(date);
 
     if (urls.length > 0) {
