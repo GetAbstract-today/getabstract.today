@@ -6,9 +6,23 @@ import {
 } from "@/components/landing-website";
 import { getLatestArticlesByCategory } from "@/lib/articles-from-newsletters";
 import { getCategoryById } from "@/lib/newsletter-categories";
+import { prisma } from "@/lib/db";
+import type { LucideIcon } from "lucide-react";
 
 export default async function HomePage() {
   const categoriesWithArticles = await getLatestArticlesByCategory();
+
+  // Resolve icons: use hardcoded LucideIcon if available, otherwise look up emoji from DB
+  const categoryIcons = new Map<string, { Icon?: LucideIcon; emoji?: string }>();
+  for (const { categoryId } of categoriesWithArticles) {
+    const hardcoded = getCategoryById(categoryId);
+    if (hardcoded) {
+      categoryIcons.set(categoryId, { Icon: hardcoded.Icon });
+    } else {
+      const profile = await prisma.topicProfile.findUnique({ where: { slug: categoryId }, select: { icon: true } });
+      categoryIcons.set(categoryId, { emoji: profile?.icon ?? "📰" });
+    }
+  }
 
   return (
     <div className="landing-page selection:bg-[#FF3300] selection:text-white">
@@ -40,16 +54,29 @@ export default async function HomePage() {
           </div>
         ) : (
           categoriesWithArticles.map(({ categoryId, categoryLabel, cards }, i) => {
-            const category = getCategoryById(categoryId);
-            const Icon = category?.Icon;
-            if (!Icon) return null;
+            const iconData = categoryIcons.get(categoryId);
+            const Icon = iconData?.Icon;
             const isLast = i === categoriesWithArticles.length - 1;
+
+            if (!Icon) {
+              // DB-only category — use emoji fallback
+              return (
+                <ArticleCardRow
+                  key={categoryId}
+                  categoryEmoji={iconData?.emoji ?? "📰"}
+                  categoryLabel={categoryLabel}
+                  cards={cards.slice(0, 7)}
+                  className={isLast ? "mb-4" : undefined}
+                />
+              );
+            }
+
             return (
               <ArticleCardRow
                 key={categoryId}
                 categoryIcon={Icon}
                 categoryLabel={categoryLabel}
-                cards={cards}
+                cards={cards.slice(0, 7)}
                 className={isLast ? "mb-4" : undefined}
               />
             );

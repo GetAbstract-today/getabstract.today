@@ -24,7 +24,7 @@ export function HeroSection() {
           </div>
           <p className="font-tech text-xs uppercase mb-8 text-gray-600 leading-relaxed">
             Get the free daily email with summaries of the most interesting
-            stories in startups 🚀, tech, AI and more!
+            stories in startups, tech, AI and more.
           </p>
           <SubscribeForm
             mode="landing"
@@ -37,7 +37,7 @@ export function HeroSection() {
             successClassName="text-[#1A1A1A]"
           />
           <p className="mt-4 font-tech text-[10px] text-gray-400 uppercase text-center">
-            Join 12,000 readers for one daily email
+            Join thousands of readers for one daily email
           </p>
         </div>
       </div>
@@ -50,7 +50,7 @@ export function HeroSection() {
         <div className="flex-1 flex items-center justify-center p-6 lg:p-10">
           <Image
             src="/og-image.png"
-            alt="Abstract — Read Less. Know More. Free daily tech & AI newsletter"
+            alt="Abstract — Stay Smart. Skip the Noise. Free daily tech & AI newsletter"
             width={1200}
             height={630}
             className="w-full h-auto"

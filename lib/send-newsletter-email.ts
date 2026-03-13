@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCategoryById } from "@/lib/newsletter-categories";
 
 const RESEND_BATCH_SIZE = 100;
-const DEFAULT_FROM_EMAIL = "onboarding@resend.dev";
+const DEFAULT_FROM_EMAIL = "newsletter@getabstract.today";
 
 /**
  * Converts markdown to HTML for the email body. Uses safe options (no raw HTML by default).
@@ -140,7 +140,7 @@ function wrapEmailBody(html: string, categoryLabel: string, date: string): strin
       text-decoration: none;
     }
     .email-header .brand span {
-      color: #2563eb;
+      color: #FF3300;
     }
     .email-header .edition {
       display: block;
@@ -195,19 +195,19 @@ function wrapEmailBody(html: string, categoryLabel: string, date: string): strin
     .email-content strong a {
       color: #1a1a1a;
       text-decoration: underline;
-      text-decoration-color: #2563eb;
+      text-decoration-color: #FF3300;
       text-underline-offset: 2px;
       font-size: 16px;
       font-weight: 700;
     }
     .email-content p strong a:hover,
     .email-content strong a:hover {
-      color: #2563eb;
+      color: #FF3300;
     }
 
     /* Regular links */
     .email-content a {
-      color: #2563eb;
+      color: #FF3300;
       text-decoration: underline;
     }
 
@@ -272,7 +272,8 @@ function wrapEmailBody(html: string, categoryLabel: string, date: string): strin
     <div class="email-footer">
       <p>You're receiving this because you subscribed to Abstract ${categoryLabel}.</p>
       <p>
-        <a href="https://getabstract.today">Visit website</a>
+        <a href="https://getabstract.today">Visit website</a> · 
+        <a href="https://getabstract.today/privacy">Privacy Policy</a>
       </p>
       <p>&copy; ${new Date().getFullYear()} Abstract. All rights reserved.</p>
     </div>

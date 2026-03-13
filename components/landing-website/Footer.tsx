@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { SubscribeForm } from "@/components/subscribe-form";
 
 export function Footer() {
@@ -15,7 +16,7 @@ export function Footer() {
 
           <div className="space-y-4">
             <label className="font-tech text-xs uppercase tracking-widest text-gray-400">
-              Newsletter, Sponsors & Partner Inquiries
+              Subscribe to our newsletter
             </label>
             <SubscribeForm
               mode="landing"
@@ -50,8 +51,16 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-end md:items-center pt-8 border-t border-[#333] font-tech text-[10px] uppercase text-gray-500">
+          <div className="flex flex-col md:flex-row justify-between items-end md:items-center pt-8 border-t border-[#333] font-tech text-[10px] uppercase text-gray-500 gap-4">
             <div>© 2026 ABSTRACT. ALL RIGHTS RESERVED.</div>
+            <div className="flex gap-4">
+              <Link href="/privacy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="hover:text-white transition-colors">
+                Terms of Service
+              </Link>
+            </div>
           </div>
         </div>
       </div>

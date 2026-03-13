@@ -94,7 +94,7 @@ export function SubscribeForm({
     return (
       <div className={className}>
         <p className={`text-sm font-medium text-emerald-600 ${successClassName}`}>
-          Thanks! You're subscribed. Check your inbox to confirm.
+          Thanks! You're subscribed.
         </p>
       </div>
     );
@@ -120,12 +120,12 @@ export function SubscribeForm({
           placeholder={placeholder}
           disabled={loading}
           aria-label="Email address"
-          className={`min-h-11 flex-1 rounded-lg border-white/15 bg-white/5 px-4 text-white placeholder:text-neutral-500 focus-visible:ring-indigo-500 ${inputClassName}`}
+          className={`min-h-11 flex-1 rounded-lg border-black/15 bg-[#E6E6E6] px-4 text-black placeholder:text-gray-500 focus-visible:ring-[#FF3300] ${inputClassName}`}
         />
         <Button
           type="submit"
           disabled={loading}
-          className={`min-h-11 shrink-0 rounded-lg bg-indigo-600 px-6 font-medium text-white hover:bg-indigo-500 ${buttonClassName}`}
+          className={`min-h-11 shrink-0 rounded-lg bg-black px-6 font-medium text-white hover:bg-[#FF3300] ${buttonClassName}`}
         >
           {loading ? "Subscribing…" : buttonText}
         </Button>

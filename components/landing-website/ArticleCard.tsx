@@ -26,6 +26,7 @@ export function ArticleCard({
           width={384}
           height={192}
           className="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-300"
+          loading="lazy"
           unoptimized={imageSrc.includes("supabase.co") || imageSrc.includes("unsplash.com")}
         />
       </div>

@@ -5,14 +5,14 @@ import { createPortal } from "react-dom";
 import { newsletterCategories } from "@/lib/newsletter-categories";
 import { X } from "lucide-react";
 
-const modalCategories = newsletterCategories
-  .filter((c) => !c.comingSoon)
-  .map((c) => ({
-    id: c.id,
-    title: c.title,
-    description: c.description,
-    Icon: c.Icon,
-  }));
+const INITIAL_VISIBLE = 5;
+
+type ModalCategory = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+};
 
 type CategorySelectModalProps = {
   isOpen: boolean;
@@ -27,9 +27,12 @@ export function CategorySelectModal({
   email,
   onSuccess,
 }: CategorySelectModalProps) {
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set(["ai"]));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<ModalCategory[]>([]);
+  const [loadingTopics, setLoadingTopics] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const toggle = useCallback((id: string) => {
     setSelected((prev) => {
@@ -40,11 +43,48 @@ export function CategorySelectModal({
     });
   }, []);
 
+  // Fetch DB topics and merge with hardcoded active categories
   useEffect(() => {
-    if (isOpen) {
-      setSelected(new Set());
-      setError(null);
-    }
+    if (!isOpen) return;
+    setSelected(new Set(["ai"]));
+    setExpanded(false);
+    setError(null);
+    setLoadingTopics(true);
+
+    fetch("/api/topics")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((dbTopics: Array<{ slug: string; name: string; description: string; icon: string }>) => {
+        // Start with hardcoded active categories
+        const seen = new Set<string>();
+        const merged: ModalCategory[] = [];
+
+        for (const c of newsletterCategories) {
+          if (c.comingSoon) continue;
+          seen.add(c.id);
+          merged.push({ id: c.id, title: c.title, description: c.description, icon: c.icon });
+        }
+
+        // Add DB topics not already in hardcoded list
+        for (const t of dbTopics) {
+          if (seen.has(t.slug)) continue;
+          seen.add(t.slug);
+          merged.push({ id: t.slug, title: t.name, description: t.description, icon: t.icon });
+        }
+
+        // Ensure AI is first
+        merged.sort((a, b) => (a.id === "ai" ? -1 : b.id === "ai" ? 1 : 0));
+
+        setCategories(merged);
+      })
+      .catch(() => {
+        // Fallback: just show hardcoded active categories
+        setCategories(
+          newsletterCategories
+            .filter((c) => !c.comingSoon)
+            .map((c) => ({ id: c.id, title: c.title, description: c.description, icon: c.icon })),
+        );
+      })
+      .finally(() => setLoadingTopics(false));
   }, [isOpen]);
 
   useEffect(() => {
@@ -104,7 +144,7 @@ export function CategorySelectModal({
       aria-labelledby="category-modal-title"
     >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden />
-      <div className="relative z-10 w-full max-w-lg bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 lg:p-8">
+      <div className="relative z-10 w-full max-w-lg max-h-[90vh] flex flex-col bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 lg:p-8">
         <button
           type="button"
           onClick={onClose}
@@ -113,7 +153,7 @@ export function CategorySelectModal({
         >
           <X strokeWidth={2} className="w-5 h-5" />
         </button>
-        <div className="mb-6 border-b-2 border-black pb-4">
+        <div className="mb-4 border-b-2 border-black pb-4">
           <h2
             id="category-modal-title"
             className="text-xl font-extrabold uppercase tracking-tight text-[#1A1A1A]"
@@ -121,54 +161,63 @@ export function CategorySelectModal({
             Choose your newsletters
           </h2>
           <p className="mt-1 font-tech text-xs uppercase text-gray-600">
-            Sign up for the topics you care about. One email, five minutes.
+            Sign up for the topics you care about. One email, two minutes.
           </p>
         </div>
-        <div className="space-y-3">
-          {modalCategories.map((cat) => {
-            const isSelected = selected.has(cat.id);
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => toggle(cat.id)}
-                aria-pressed={isSelected}
-                className={`w-full flex items-start gap-4 text-left border-2 p-4 transition-colors ${
-                  isSelected
-                    ? "border-black bg-[#FF3300]/10"
-                    : "border-black bg-white hover:bg-[#E6E6E6]"
-                }`}
-              >
-                <div className="w-10 h-10 shrink-0 border-2 border-black rounded-full flex items-center justify-center bg-white">
-                  <cat.Icon
-                    strokeWidth={1.5}
-                    className={`w-5 h-5 ${isSelected ? "text-[#FF3300]" : "text-black"}`}
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-bold uppercase text-sm text-[#1A1A1A]">
-                    {cat.title}
-                  </p>
-                  <p className="mt-0.5 font-tech text-xs text-gray-600">
-                    {cat.description}
-                  </p>
-                </div>
-                <div
-                  className={`flex h-8 w-14 shrink-0 items-center rounded-full border-2 border-black transition-colors ${
-                    isSelected
-                      ? "bg-[#FF3300] justify-end pl-1 pr-2"
-                      : "bg-[#E6E6E6] justify-start pl-2 pr-1"
-                  }`}
-                >
-                  <span
-                    className={`flex h-5 w-5 rounded-full border-2 border-black ${
-                      isSelected ? "bg-white" : "bg-[#E6E6E6]"
+        <div className={`${expanded ? "overflow-y-auto" : ""} flex-1 min-h-0 space-y-2 pr-1`}>
+          {loadingTopics ? (
+            <p className="font-tech text-xs uppercase text-gray-500 text-center py-8">
+              Loading topics…
+            </p>
+          ) : (
+            <>
+              {(expanded ? categories : categories.slice(0, INITIAL_VISIBLE)).map((cat) => {
+                const isSelected = selected.has(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => toggle(cat.id)}
+                    aria-pressed={isSelected}
+                    className={`w-full flex items-center gap-3 text-left border-2 px-3 py-2.5 transition-colors ${
+                      isSelected
+                        ? "border-black bg-[#FF3300]/10"
+                        : "border-black bg-white hover:bg-[#E6E6E6]"
                     }`}
-                  />
-                </div>
-              </button>
-            );
-          })}
+                  >
+                    <span className="text-lg shrink-0 w-8 text-center">{cat.icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold uppercase text-sm text-[#1A1A1A] leading-tight">
+                        {cat.title}
+                      </p>
+                    </div>
+                    <div
+                      className={`flex h-6 w-11 shrink-0 items-center rounded-full border-2 border-black transition-colors ${
+                        isSelected
+                          ? "bg-[#FF3300] justify-end pl-1 pr-1"
+                          : "bg-[#E6E6E6] justify-start pl-1 pr-1"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-4 w-4 rounded-full border-2 border-black ${
+                          isSelected ? "bg-white" : "bg-[#E6E6E6]"
+                        }`}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+              {!expanded && categories.length > INITIAL_VISIBLE && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(true)}
+                  className="w-full text-center font-tech text-xs uppercase text-[#FF3300] hover:text-black transition-colors py-2"
+                >
+                  See more ({categories.length - INITIAL_VISIBLE} more topics)
+                </button>
+              )}
+            </>
+          )}
         </div>
         {error && (
           <p

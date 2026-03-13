@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Free Daily Tech & AI Newsletter - 2-Min Reads | Abstract",
   description:
-    "Get the free daily email with the most interesting stories in AI, startups, and tech — summarized in a quick 2-minute read. Join 12,000+ readers today.",
+    "Get the free daily email with the most interesting stories in AI, startups, and tech — summarized in a quick 2-minute read. Join thousands of readers today.",
 
   metadataBase: new URL("https://getabstract.today"),
   alternates: {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "Abstract",
     title: "Free Daily Tech & AI Newsletter — Abstract",
     description:
-      "We read 100+ sources daily so you don't have to. Get top stories in AI, startups, and tech in a free 2-minute email. Join 12,000+ readers.",
+      "We read 100+ sources daily so you don't have to. Get top stories in AI, startups, and tech in a free 2-minute email. Join thousands of readers.",
     images: [
       {
         url: "/og-image.png",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Free Daily Tech & AI Newsletter — Abstract",
     description:
-      "Top stories in AI, startups, and tech — summarized in 2 minutes. Free daily email for 12,000+ readers.",
+      "Top stories in AI, startups, and tech — summarized in 2 minutes. Free daily email for thousands of readers.",
     images: ["/og-image.png"],
   },
 
@@ -74,13 +74,18 @@ export const metadata: Metadata = {
     "tech news summary",
     "AI news daily",
     "tech email digest",
-    "best tech newsletters 2026",
+    "best tech newsletters",
   ],
 
   applicationName: "Abstract",
   category: "Technology",
   creator: "Abstract",
   publisher: "Abstract",
+
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -115,7 +120,7 @@ export default function RootLayout({
                   },
                   potentialAction: {
                     "@type": "SubscribeAction",
-                    target: "https://getabstract.today/#subscribe",
+                    target: "https://getabstract.today/newsletters",
                     name: "Subscribe to Abstract Newsletter",
                   },
                 },

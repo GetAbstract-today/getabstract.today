@@ -22,7 +22,7 @@ export default function ComingSoonPage() {
             Coming Soon
           </h1>
           <p className="font-tech text-sm uppercase text-gray-600 mb-8">
-            We're building something new. Check back later.
+            New newsletters and features are on the way. Stay tuned.
           </p>
           <Link
             href="/"

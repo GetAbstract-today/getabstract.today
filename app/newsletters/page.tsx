@@ -30,15 +30,15 @@ export default function NewslettersPage() {
         </div>
         <div className="relative z-10 max-w-sm mt-12 md:mt-0 bg-white border-beam p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
           <p className="font-tech text-xs uppercase text-gray-600 leading-relaxed mb-6">
-            Establish a direct line to specialized knowledge. Subscribe to
-            active signals across technology, engineering, and digital
-            architecture.
+            Subscribe to curated newsletters on the topics you care about
+            — AI, tech, startups, and more. One email per topic, delivered
+            daily.
           </p>
           <div className="flex justify-between items-center text-xs font-tech font-bold uppercase tracking-widest border-t-2 border-black pt-4">
-            <span>Index: {newsletterCategories.length} Nodes</span>
+            <span>{newsletterCategories.length} Newsletters</span>
             <span className="text-[#FF3300] flex items-center gap-2">
               <div className="w-2 h-2 bg-[#FF3300] rounded-full animate-pulse" />{" "}
-              Secure
+              Active
             </span>
           </div>
         </div>

@@ -3,7 +3,6 @@ export { Header } from "./Header";
 export { Footer } from "./Footer";
 export { ArticleCard } from "./ArticleCard";
 export type { ArticleCardProps } from "./ArticleCard";
-export { SubscribeForm } from "./SubscribeForm";
 export { HeroSection } from "./HeroSection";
 export { SectionTitle } from "./SectionTitle";
 export type { SectionTitleProps } from "./SectionTitle";

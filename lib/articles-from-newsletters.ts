@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { isCategoryId } from "@/lib/newsletter-categories";
+import { getCategoryById } from "@/lib/newsletter-categories";
 
 export interface ArticleCardData {
   imageSrc: string;
@@ -83,7 +83,6 @@ export async function getLatestArticlesByCategory(): Promise<
   const byCategory = new Map<string, ArticleCardData[]>();
 
   for (const n of newsletters) {
-    if (!isCategoryId(n.category)) continue;
     const title = n.title ?? extractTitle(n.content);
     const description = extractDescription(n.content);
     const dateRead = formatDateRead(n.createdAt);
@@ -102,36 +101,32 @@ export async function getLatestArticlesByCategory(): Promise<
     byCategory.set(n.category, list);
   }
 
-  const categoryOrder = [
-    "ai",
-    "dev",
-    "infosec",
-    "product",
-    "devops",
-    "startups",
-    "founders",
-    "design",
-    "marketing",
-    "crypto",
-    "fintech",
-    "it",
-    "data",
-    "hardware",
-  ] as const;
-
+  // Build ordered result from all categories that have articles
   const result: CategoryWithArticles[] = [];
-  for (const categoryId of categoryOrder) {
+  const seen = new Set<string>();
+
+  // Process categories in a stable order: hardcoded first, then any remaining DB categories
+  const hardcodedOrder = [
+    "ai", "dev", "infosec", "product", "devops", "startups",
+    "founders", "design", "marketing", "crypto", "fintech",
+    "it", "data", "hardware",
+  ];
+
+  for (const categoryId of hardcodedOrder) {
     const cards = byCategory.get(categoryId);
     if (!cards || cards.length === 0) continue;
-    const label =
-      categoryId === "infosec"
-        ? "Information Security"
-        : categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
-    result.push({
-      categoryId,
-      categoryLabel: label,
-      cards,
-    });
+    seen.add(categoryId);
+    const category = getCategoryById(categoryId);
+    const label = category?.title ?? categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
+    result.push({ categoryId, categoryLabel: label, cards });
   }
+
+  // Add any DB-only categories not in the hardcoded list
+  for (const [categoryId, cards] of byCategory) {
+    if (seen.has(categoryId) || cards.length === 0) continue;
+    const label = categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
+    result.push({ categoryId, categoryLabel: label, cards });
+  }
+
   return result;
 }

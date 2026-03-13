@@ -66,9 +66,9 @@ export default async function NewsletterReadPage({ params }: Props) {
               <SubscribeForm
                 mode="single"
                 category={id}
-                placeholder="AUTHORIZATION [EMAIL]"
+                placeholder="Enter your email address"
                 buttonText="Subscribe"
-                caption="Join thousands of readers for one daily email."
+                caption="One useful email per day. No spam."
                 className="flex flex-col gap-3 w-full"
                 formClassName="flex flex-col sm:flex-row gap-3 w-full border-2 border-black"
                 inputClassName="bg-[#E6E6E6] p-4 font-tech text-sm text-black outline-none placeholder:text-gray-500 focus:bg-white border-0 rounded-none min-h-12 flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
