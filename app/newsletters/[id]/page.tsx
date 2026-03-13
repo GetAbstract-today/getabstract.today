@@ -23,10 +23,18 @@ type Props = { params: Promise<{ id: string }> };
 export default async function NewsletterReadPage({ params }: Props) {
   const { id } = await params;
 
-  // Category landing page – subscription with landing design
-  if (isCategoryId(id)) {
-    const category = getCategoryById(id);
-    if (!category) notFound();
+  // Category landing page – check hardcoded categories first, then DB TopicProfiles
+  const hardcodedCategory = isCategoryId(id) ? getCategoryById(id) : null;
+  const dbProfile = !hardcodedCategory
+    ? await prisma.topicProfile.findUnique({ where: { slug: id } })
+    : null;
+
+  if (hardcodedCategory || dbProfile) {
+    const title = hardcodedCategory?.title ?? dbProfile!.name;
+    const tagline = hardcodedCategory?.tagline ?? dbProfile!.tagline;
+    const description = hardcodedCategory?.description ?? dbProfile!.description;
+    const IconComponent = hardcodedCategory?.Icon;
+    const iconEmoji = dbProfile?.icon;
 
     return (
       <div className="landing-page selection:bg-[#FF3300] selection:text-white min-h-screen flex flex-col">
@@ -35,20 +43,24 @@ export default async function NewsletterReadPage({ params }: Props) {
           <div className="w-full max-w-xl relative z-10 bg-white border-beam p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <div className="flex items-center gap-3 mb-6 border-beam-b pb-4">
               <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center bg-white shrink-0">
-                <category.Icon
-                  strokeWidth={1.5}
-                  className="text-3xl text-[#FF3300] w-8 h-8"
-                />
+                {IconComponent ? (
+                  <IconComponent
+                    strokeWidth={1.5}
+                    className="text-3xl text-[#FF3300] w-8 h-8"
+                  />
+                ) : (
+                  <span className="text-3xl">{iconEmoji}</span>
+                )}
               </div>
               <h1 className="text-3xl font-extrabold uppercase tracking-tight-custom">
-                {category.title}
+                {title}
               </h1>
             </div>
             <p className="font-tech text-xs uppercase mb-2 text-[#FF3300] tracking-widest">
-              {category.tagline}
+              {tagline}
             </p>
             <p className="font-medium text-[#1A1A1A] leading-relaxed mb-8">
-              {category.description}
+              {description}
             </p>
             <div className="border-beam-t pt-6">
               <SubscribeForm

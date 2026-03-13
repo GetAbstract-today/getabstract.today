@@ -24,11 +24,22 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!category || !isCategoryId(category)) {
+    if (!category) {
       return NextResponse.json(
         { error: "Invalid newsletter category" },
         { status: 400 }
       );
+    }
+
+    // Accept hardcoded categories OR DB-driven TopicProfile slugs
+    if (!isCategoryId(category)) {
+      const profile = await prisma.topicProfile.findUnique({ where: { slug: category }, select: { slug: true } });
+      if (!profile) {
+        return NextResponse.json(
+          { error: "Invalid newsletter category" },
+          { status: 400 }
+        );
+      }
     }
 
     await prisma.subscription.create({

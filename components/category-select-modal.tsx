@@ -3,31 +3,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { newsletterCategories } from "@/lib/newsletter-categories";
+import { X } from "lucide-react";
 
-const MODAL_CATEGORY_IDS = [
-  "ai",
-  "devops",
-  "product",
-  "infosec",
-  "dev",
-] as const;
-
-const modalCategories = MODAL_CATEGORY_IDS.map((id) => {
-  const c = newsletterCategories.find((cat) => cat.id === id);
-  return c
-    ? {
-        id: c.id,
-        title: id === "infosec" ? "InfoSec" : c.title,
-        description: c.description,
-        Icon: c.Icon,
-      }
-    : null;
-}).filter(Boolean) as Array<{
-  id: string;
-  title: string;
-  description: string;
-  Icon: (typeof newsletterCategories)[0]["Icon"];
-}>;
+const modalCategories = newsletterCategories
+  .filter((c) => !c.comingSoon)
+  .map((c) => ({
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    Icon: c.Icon,
+  }));
 
 type CategorySelectModalProps = {
   isOpen: boolean;
@@ -42,7 +27,7 @@ export function CategorySelectModal({
   email,
   onSuccess,
 }: CategorySelectModalProps) {
-  const [selected, setSelected] = useState<Set<string>>(new Set(["ai"]));
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +42,7 @@ export function CategorySelectModal({
 
   useEffect(() => {
     if (isOpen) {
-      setSelected(new Set(["ai"]));
+      setSelected(new Set());
       setError(null);
     }
   }, [isOpen]);
@@ -120,6 +105,14 @@ export function CategorySelectModal({
     >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden />
       <div className="relative z-10 w-full max-w-lg bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 lg:p-8">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1 hover:bg-[#E6E6E6] transition-colors border-2 border-transparent hover:border-black"
+          aria-label="Close"
+        >
+          <X strokeWidth={2} className="w-5 h-5" />
+        </button>
         <div className="mb-6 border-b-2 border-black pb-4">
           <h2
             id="category-modal-title"
