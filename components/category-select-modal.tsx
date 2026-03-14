@@ -143,7 +143,7 @@ export function CategorySelectModal({
       aria-modal="true"
       aria-labelledby="category-modal-title"
     >
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden onClick={onClose} />
       <div className="relative z-10 w-full max-w-lg max-h-[90vh] flex flex-col bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 lg:p-8">
         <button
           type="button"
@@ -227,7 +227,12 @@ export function CategorySelectModal({
             {error}
           </p>
         )}
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex flex-col gap-3 items-end">
+          <p className="text-[10px] text-gray-400 w-full">
+            By subscribing you agree to our{" "}
+            <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
+            Unsubscribe at any time.
+          </p>
           <button
             type="button"
             onClick={handleSave}

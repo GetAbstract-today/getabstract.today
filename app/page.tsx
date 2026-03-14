@@ -14,13 +14,23 @@ export default async function HomePage() {
 
   // Resolve icons: use hardcoded LucideIcon if available, otherwise look up emoji from DB
   const categoryIcons = new Map<string, { Icon?: LucideIcon; emoji?: string }>();
+  const dbSlugs: string[] = [];
   for (const { categoryId } of categoriesWithArticles) {
     const hardcoded = getCategoryById(categoryId);
     if (hardcoded) {
       categoryIcons.set(categoryId, { Icon: hardcoded.Icon });
     } else {
-      const profile = await prisma.topicProfile.findUnique({ where: { slug: categoryId }, select: { icon: true } });
-      categoryIcons.set(categoryId, { emoji: profile?.icon ?? "📰" });
+      dbSlugs.push(categoryId);
+    }
+  }
+  if (dbSlugs.length > 0) {
+    const profiles = await prisma.topicProfile.findMany({
+      where: { slug: { in: dbSlugs } },
+      select: { slug: true, icon: true },
+    });
+    const profileMap = new Map(profiles.map((p) => [p.slug, p.icon]));
+    for (const slug of dbSlugs) {
+      categoryIcons.set(slug, { emoji: profileMap.get(slug) ?? "📰" });
     }
   }
 

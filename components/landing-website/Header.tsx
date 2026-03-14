@@ -11,7 +11,7 @@ const MOBILE_LINKS: Array<{
   highlight?: boolean;
 }> = [
   { href: "/newsletters", label: "Newsletters" },
-  { href: "/coming-soon", label: "Advertise" },
+  { href: "/advertise", label: "Advertise" },
   { href: "/newsletters", label: "Subscribe", highlight: true },
 ];
 
@@ -57,7 +57,7 @@ export function Header() {
               Newsletters
             </Link>
             <Link
-              href="/coming-soon"
+              href="/advertise"
               className="h-full flex items-center px-8 hover:bg-black hover:text-white transition-colors duration-0"
             >
               Advertise

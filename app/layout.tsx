@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Free Daily Tech & AI Newsletter - 2-Min Reads | Abstract",
   description:
-    "Get the free daily email with the most interesting stories in AI, startups, and tech — summarized in a quick 2-minute read. Join thousands of readers today.",
+    "Get the free daily email with the most interesting stories in AI, startups, and tech — summarized in a quick 2-minute read. Subscribe free today.",
 
   metadataBase: new URL("https://getabstract.today"),
   alternates: {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "Abstract",
     title: "Free Daily Tech & AI Newsletter — Abstract",
     description:
-      "We read 100+ sources daily so you don't have to. Get top stories in AI, startups, and tech in a free 2-minute email. Join thousands of readers.",
+      "We read 100+ sources daily so you don't have to. Get top stories in AI, startups, and tech in a free 2-minute email. Subscribe free today.",
     images: [
       {
         url: "/og-image.png",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Free Daily Tech & AI Newsletter — Abstract",
     description:
-      "Top stories in AI, startups, and tech — summarized in 2 minutes. Free daily email for thousands of readers.",
+      "Top stories in AI, startups, and tech — summarized in 2 minutes. Free daily email from Abstract.",
     images: ["/og-image.png"],
   },
 
@@ -75,6 +75,7 @@ export const metadata: Metadata = {
     "AI news daily",
     "tech email digest",
     "best tech newsletters",
+    "startup news",
   ],
 
   applicationName: "Abstract",

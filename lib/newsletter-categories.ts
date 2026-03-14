@@ -51,7 +51,7 @@ export const newsletterCategories: Array<{
     title: "AI",
     description:
       "Launches, innovations, and research for AI, machine learning, and data science professionals",
-    tagline: "Keep up with AI in 5 minutes",
+    tagline: "Keep up with AI in 2 minutes",
     comingSoon: false,
   },
   {
@@ -61,7 +61,7 @@ export const newsletterCategories: Array<{
     title: "Startups, Tech & Programming",
     description:
       "The most interesting stories in tech, startups, and programming",
-    tagline: "Keep up with startups & tech in 5 minutes",
+    tagline: "Keep up with startups & tech in 2 minutes",
     comingSoon: true,
   },
   {
@@ -71,7 +71,7 @@ export const newsletterCategories: Array<{
     title: "Dev",
     description:
       "Curated deep dives, tools, and trends in frontend, backend, and full stack web development",
-    tagline: "Keep up with dev in 5 minutes",
+    tagline: "Keep up with dev in 2 minutes",
     comingSoon: true,
   },
   {
@@ -81,7 +81,7 @@ export const newsletterCategories: Array<{
     title: "Information Security",
     description:
       "News, research, and tools for information security professionals",
-    tagline: "Keep up with infosec in 5 minutes",
+    tagline: "Keep up with infosec in 2 minutes",
     comingSoon: true,
   },
   {
@@ -90,7 +90,7 @@ export const newsletterCategories: Array<{
     Icon: Box,
     title: "Product Management",
     description: "Deep dives, trends, and resources for product managers",
-    tagline: "Keep up with product in 5 minutes",
+    tagline: "Keep up with product in 2 minutes",
     comingSoon: true,
   },
   {
@@ -99,7 +99,7 @@ export const newsletterCategories: Array<{
     Icon: CloudCog,
     title: "DevOps",
     description: "Tools, trends, and insights for DevOps engineers",
-    tagline: "Keep up with DevOps in 5 minutes",
+    tagline: "Keep up with DevOps in 2 minutes",
     comingSoon: true,
   },
   {
@@ -109,7 +109,7 @@ export const newsletterCategories: Array<{
     title: "Founders",
     description:
       "Tactics, trends, and tools for startup founders and entrepreneurs",
-    tagline: "Keep up with startups in 5 minutes",
+    tagline: "Keep up with founder life in 2 minutes",
     comingSoon: true,
   },
   {
@@ -118,7 +118,7 @@ export const newsletterCategories: Array<{
     Icon: Palette,
     title: "Design",
     description: "Tools, trends, and inspiration for designers",
-    tagline: "Keep up with design in 5 minutes",
+    tagline: "Keep up with design in 2 minutes",
     comingSoon: true,
   },
   {
@@ -127,7 +127,7 @@ export const newsletterCategories: Array<{
     Icon: TrendingUp,
     title: "Marketing",
     description: "Tactics, trends, and tools for cutting edge marketers",
-    tagline: "Keep up with marketing in 5 minutes",
+    tagline: "Keep up with marketing in 2 minutes",
     comingSoon: true,
   },
   {
@@ -137,7 +137,7 @@ export const newsletterCategories: Array<{
     title: "Crypto",
     description:
       "The latest launches, innovations, and market moves in crypto & Web3",
-    tagline: "Keep up with crypto in 5 minutes",
+    tagline: "Keep up with crypto in 2 minutes",
     comingSoon: true,
   },
   {
@@ -146,7 +146,7 @@ export const newsletterCategories: Array<{
     Icon: CircleDollarSign,
     title: "Fintech",
     description: "Innovations and trends in financial markets and technology",
-    tagline: "Keep up with fintech in 5 minutes",
+    tagline: "Keep up with fintech in 2 minutes",
     comingSoon: true,
   },
   {
@@ -156,7 +156,7 @@ export const newsletterCategories: Array<{
     title: "IT",
     description:
       "News and trends in IT strategy, information security, and cloud computing",
-    tagline: "Keep up with IT in 5 minutes",
+    tagline: "Keep up with IT in 2 minutes",
     comingSoon: true,
   },
   {
@@ -164,8 +164,8 @@ export const newsletterCategories: Array<{
     icon: "📊",
     Icon: BarChart2,
     title: "Data",
-    description: "Big data, data science and data engineering",
-    tagline: "Keep up with data in 5 minutes",
+    description: "Tools, trends, and insights in big data, data science, and data engineering",
+    tagline: "Keep up with data in 2 minutes",
     comingSoon: true,
   },
   {
@@ -175,7 +175,7 @@ export const newsletterCategories: Array<{
     title: "Hardware",
     description:
       "The latest in robotics, semiconductors and hardware engineering",
-    tagline: "Keep up with hardware in 5 minutes",
+    tagline: "Keep up with hardware in 2 minutes",
     comingSoon: true,
   },
 ];

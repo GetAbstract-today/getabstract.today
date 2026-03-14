@@ -55,8 +55,7 @@ export function NewsletterBentoCard({
         </div>
         {isActive ? (
           <div className="font-tech text-xs flex items-center gap-2 uppercase tracking-widest border-2 border-[#FF3300] group-hover:border-white px-3 py-1 bg-[#FF3300]/10 group-hover:bg-black/20 transition-colors duration-200">
-            <div className="w-2 h-2 bg-[#FF3300] group-hover:bg-white rounded-full animate-pulse" />{" "}
-            Active
+            Subscribe
           </div>
         ) : (
           <span className="font-tech text-xs text-gray-500 group-hover:text-black uppercase border border-gray-400 group-hover:border-black px-2 py-1 tracking-widest transition-colors whitespace-nowrap">

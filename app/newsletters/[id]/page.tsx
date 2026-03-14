@@ -1,10 +1,43 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { getCategoryById, isCategoryId } from "@/lib/newsletter-categories";
 import { NewsletterContent } from "./NewsletterContent";
 import { SubscribeForm } from "@/components/subscribe-form";
 import { NoiseOverlay } from "@/components/landing-website";
+
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const hardcoded = isCategoryId(id) ? getCategoryById(id) : null;
+  const dbProfile = !hardcoded
+    ? await prisma.topicProfile.findUnique({ where: { slug: id }, select: { name: true, tagline: true } })
+    : null;
+
+  if (hardcoded || dbProfile) {
+    const title = hardcoded?.title ?? dbProfile!.name;
+    const tagline = hardcoded?.tagline ?? dbProfile!.tagline;
+    return {
+      title: `${title} Newsletter | Abstract`,
+      description: tagline,
+    };
+  }
+
+  const newsletter = await prisma.newsletter.findUnique({
+    where: { id },
+    select: { title: true, category: true },
+  });
+  if (newsletter) {
+    return {
+      title: newsletter.title ?? `${newsletter.category} Newsletter | Abstract`,
+      description: `Read the latest ${newsletter.category} newsletter from Abstract.`,
+    };
+  }
+
+  return { title: "Newsletter | Abstract" };
+}
 
 function formatDate(d: Date): string {
   return new Date(d).toLocaleDateString("en-US", {
@@ -17,8 +50,6 @@ function formatDate(d: Date): string {
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 }
-
-type Props = { params: Promise<{ id: string }> };
 
 export default async function NewsletterReadPage({ params }: Props) {
   const { id } = await params;

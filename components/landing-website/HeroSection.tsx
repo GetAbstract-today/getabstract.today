@@ -23,8 +23,8 @@ export function HeroSection() {
             </h2>
           </div>
           <p className="font-tech text-xs uppercase mb-8 text-gray-600 leading-relaxed">
-            Get the free daily email with summaries of the most interesting
-            stories in startups, tech, AI and more.
+            The top stories in AI, startups, and tech — summarized in a quick
+            2-minute read. Free, daily.
           </p>
           <SubscribeForm
             mode="landing"
@@ -37,7 +37,7 @@ export function HeroSection() {
             successClassName="text-[#1A1A1A]"
           />
           <p className="mt-4 font-tech text-[10px] text-gray-400 uppercase text-center">
-            Join thousands of readers for one daily email
+            One free email per day. No spam.
           </p>
         </div>
       </div>

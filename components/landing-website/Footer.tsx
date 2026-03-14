@@ -16,12 +16,12 @@ export function Footer() {
 
           <div className="space-y-4">
             <label className="font-tech text-xs uppercase tracking-widest text-gray-400">
-              Subscribe to our newsletter
+              Subscribe to our newsletters
             </label>
             <SubscribeForm
               mode="landing"
               placeholder="Email Address"
-              buttonText="Submit"
+              buttonText="Subscribe"
               className="w-full"
               formClassName="flex w-full flex-col sm:flex-row border border-[#555]"
               inputClassName="bg-transparent flex-1 w-full p-4 font-tech text-white outline-none placeholder:text-gray-600 focus:bg-[#1A1A1A] rounded-none border-0 min-h-0 focus-visible:ring-0 focus-visible:ring-offset-0"

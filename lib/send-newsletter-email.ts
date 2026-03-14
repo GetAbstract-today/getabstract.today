@@ -69,12 +69,16 @@ export async function sendNewsletterToSubscribers(
 
   for (let i = 0; i < emails.length; i += RESEND_BATCH_SIZE) {
     const chunk = emails.slice(i, i + RESEND_BATCH_SIZE);
-    const batch = chunk.map((email) => ({
-      from,
-      to: email,
-      subject,
-      html,
-    }));
+    const batch = chunk.map((email) => {
+      const unsubUrl = `https://getabstract.today/api/unsubscribe?email=${encodeURIComponent(email)}&category=${encodeURIComponent(category)}`;
+      const personalHtml = html.replace('{{UNSUBSCRIBE_URL}}', unsubUrl);
+      return {
+        from,
+        to: email,
+        subject,
+        html: personalHtml,
+      };
+    });
 
     try {
       const { error } = await resend.batch.send(batch);
@@ -260,7 +264,7 @@ function wrapEmailBody(html: string, categoryLabel: string, date: string): strin
     <div class="email-header">
       <a href="https://getabstract.today" class="brand">Abstract<span>.</span></a>
       <span class="edition">${categoryLabel} Edition</span>
-      <span class="date-line">Abstract ${categoryLabel} ${date}</span>
+      <span class="date-line">${date}</span>
     </div>
 
     <!-- Content -->
@@ -273,7 +277,8 @@ function wrapEmailBody(html: string, categoryLabel: string, date: string): strin
       <p>You're receiving this because you subscribed to Abstract ${categoryLabel}.</p>
       <p>
         <a href="https://getabstract.today">Visit website</a> · 
-        <a href="https://getabstract.today/privacy">Privacy Policy</a>
+        <a href="https://getabstract.today/privacy">Privacy Policy</a> · 
+        <a href="{{UNSUBSCRIBE_URL}}">Unsubscribe</a>
       </p>
       <p>&copy; ${new Date().getFullYear()} Abstract. All rights reserved.</p>
     </div>

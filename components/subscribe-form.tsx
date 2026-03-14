@@ -140,6 +140,11 @@ export function SubscribeForm({
           {caption}
         </p>
       )}
+      <p className="mt-2 w-full max-w-sm text-[10px] text-gray-400">
+        By subscribing you agree to our{" "}
+        <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
+        Unsubscribe at any time.
+      </p>
     </div>
     </>
   );
