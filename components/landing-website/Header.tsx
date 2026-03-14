@@ -4,19 +4,22 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ArrowRight } from "lucide-react";
+import { CategorySelectModal } from "@/components/category-select-modal";
 
 const MOBILE_LINKS: Array<{
-  href: string;
+  href?: string;
   label: string;
   highlight?: boolean;
+  action?: string;
 }> = [
   { href: "/newsletters", label: "Newsletters" },
   { href: "/advertise", label: "Advertise" },
-  { href: "/newsletters", label: "Subscribe", highlight: true },
+  { label: "Subscribe", highlight: true, action: "subscribe" },
 ];
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   return (
@@ -62,13 +65,14 @@ export function Header() {
             >
               Advertise
             </Link>
-            <Link
-              href="/newsletters"
-              className="h-full flex items-center px-8 bg-[#FF3300] text-white hover:bg-black transition-colors duration-0 font-bold border-l-2 border-black gap-2"
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="h-full flex items-center px-8 bg-[#FF3300] text-white hover:bg-black transition-colors duration-0 font-bold border-l-2 border-black gap-2 font-tech text-xs tracking-widest uppercase"
             >
               Subscribe{" "}
               <ArrowRight strokeWidth={1.5} className="text-lg w-5 h-5" />
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -77,10 +81,24 @@ export function Header() {
           <div className="lg:hidden">
             <div className="bg-white border-t-2 border-black">
               <div className="flex flex-col font-tech text-xs tracking-widest uppercase">
-                {MOBILE_LINKS.map(({ href, label, highlight }) => (
+                {MOBILE_LINKS.map(({ href, label, highlight, action }) => {
+                  if (action === "subscribe") {
+                    return (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => { closeMobile(); setModalOpen(true); }}
+                        className="flex items-center justify-between px-6 py-4 border-b-2 border-black last:border-b-0 transition-colors bg-[#FF3300] text-white font-bold hover:bg-black w-full text-left"
+                      >
+                        {label}
+                        <ArrowRight strokeWidth={1.5} className="w-5 h-5" />
+                      </button>
+                    );
+                  }
+                  return (
                   <Link
                     key={label}
-                    href={href}
+                    href={href!}
                     onClick={closeMobile}
                     className={`flex items-center justify-between px-6 py-4 border-b-2 border-black last:border-b-0 transition-colors ${
                       highlight
@@ -93,7 +111,8 @@ export function Header() {
                       <ArrowRight strokeWidth={1.5} className="w-5 h-5" />
                     )}
                   </Link>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -109,6 +128,12 @@ export function Header() {
           aria-label="Close menu"
         />
       )}
+
+      <CategorySelectModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={() => setModalOpen(false)}
+      />
     </>
   );
 }

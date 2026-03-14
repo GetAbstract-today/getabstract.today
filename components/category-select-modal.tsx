@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { newsletterCategories } from "@/lib/newsletter-categories";
+import { isValidEmail } from "@/lib/validate-email";
 import { X } from "lucide-react";
 
 const INITIAL_VISIBLE = 5;
@@ -17,14 +18,14 @@ type ModalCategory = {
 type CategorySelectModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  email: string;
+  email?: string;
   onSuccess: () => void;
 };
 
 export function CategorySelectModal({
   isOpen,
   onClose,
-  email,
+  email: emailProp = "",
   onSuccess,
 }: CategorySelectModalProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set(["ai"]));
@@ -33,6 +34,7 @@ export function CategorySelectModal({
   const [categories, setCategories] = useState<ModalCategory[]>([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [inlineEmail, setInlineEmail] = useState("");
 
   const toggle = useCallback((id: string) => {
     setSelected((prev) => {
@@ -49,6 +51,7 @@ export function CategorySelectModal({
     setSelected(new Set(["ai"]));
     setExpanded(false);
     setError(null);
+    setInlineEmail("");
     setLoadingTopics(true);
 
     fetch("/api/topics")
@@ -101,6 +104,15 @@ export function CategorySelectModal({
       setError("Select at least one newsletter.");
       return;
     }
+    const finalEmail = (emailProp || inlineEmail).trim().toLowerCase();
+    if (!finalEmail) {
+      setError("Please enter your email address.");
+      return;
+    }
+    if (!isValidEmail(finalEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
     setError(null);
     setSaving(true);
     try {
@@ -110,7 +122,7 @@ export function CategorySelectModal({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              email: email.trim().toLowerCase(),
+              email: finalEmail,
               category,
             }),
           }),
@@ -227,20 +239,44 @@ export function CategorySelectModal({
             {error}
           </p>
         )}
-        <div className="mt-6 flex flex-col gap-3 items-end">
+        <div className="mt-6 flex flex-col gap-3">
+          {!emailProp && (
+            <div className="flex w-full border-2 border-black">
+              <input
+                type="email"
+                value={inlineEmail}
+                onChange={(e) => setInlineEmail(e.target.value)}
+                placeholder="Email Address"
+                aria-label="Email address"
+                className="flex-1 bg-[#E6E6E6] p-3 font-tech text-sm text-black outline-none placeholder:text-gray-500 focus:bg-white transition-colors border-0"
+              />
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || selected.size === 0}
+                className="bg-black text-white font-bold uppercase px-6 py-3 hover:bg-[#FF3300] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0 font-tech text-xs tracking-widest"
+              >
+                {saving ? "Subscribing…" : "Subscribe"}
+              </button>
+            </div>
+          )}
+          {emailProp && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || selected.size === 0}
+                className="bg-black text-white font-bold uppercase px-8 py-3 hover:bg-[#FF3300] transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-2 border-black"
+              >
+                {saving ? "Subscribing…" : "Subscribe"}
+              </button>
+            </div>
+          )}
           <p className="text-[10px] text-gray-400 w-full">
             By subscribing you agree to our{" "}
             <a href="/privacy" className="underline hover:text-gray-600">Privacy Policy</a>.
             Unsubscribe at any time.
           </p>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving || selected.size === 0}
-            className="bg-black text-white font-bold uppercase px-8 py-3 hover:bg-[#FF3300] transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-2 border-black"
-          >
-            {saving ? "Subscribing…" : "Subscribe"}
-          </button>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
 import { newsletterCategories } from "@/lib/newsletter-categories";
 import { Radio } from "lucide-react";
 import type { Metadata } from "next";
+import { SubscribeForm } from "@/components/subscribe-form";
 
 export const metadata: Metadata = {
   title: "Newsletters | Abstract",
@@ -40,12 +41,16 @@ export default function NewslettersPage() {
             Curated daily digests on the topics that matter to you — AI,
             tech, startups, and more. One email per topic, delivered daily.
           </p>
-          <div className="flex justify-between items-center text-xs font-tech font-bold uppercase tracking-widest border-t-2 border-black pt-4">
-            <span>{newsletterCategories.length} Newsletters</span>
-            <span className="text-[#FF3300] flex items-center gap-2">
-              Subscribe
-            </span>
-          </div>
+          <SubscribeForm
+            mode="landing"
+            placeholder="Email Address"
+            buttonText="Subscribe"
+            className="w-full"
+            formClassName="flex w-full flex-col sm:flex-row border-2 border-black"
+            inputClassName="bg-[#E6E6E6] w-full p-3 font-tech text-sm text-black outline-none placeholder:text-gray-500 focus:bg-white transition-colors rounded-none border-0 min-h-0 flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
+            buttonClassName="bg-black text-white font-bold uppercase px-6 py-3 hover:bg-[#FF3300] transition-colors duration-0 sm:border-l-2 border-black rounded-none min-h-0 shrink-0"
+            successClassName="text-[#1A1A1A]"
+          />
         </div>
       </section>
 
